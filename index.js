@@ -67,7 +67,7 @@ server.register([
 	  register: require('./server/models/models.js')
 	},
 	{
-	  register: require('./server/base/products_base.js')
+	  register: require('./server/controller/products_controller.js')
 	},
 
 

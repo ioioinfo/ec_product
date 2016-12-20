@@ -12,7 +12,7 @@ var products = function(server) {
 			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
 			is_group_product, is_replace_product, is_crazy_product,
 			is_point_product, is_net_point,is_free_product, is_low_price_product,
-			origin, module_number FROM products where industry_id =?`;
+			origin, module_number FROM products where industry_id =? and flag =0`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, industry_id, function(err, results) {
@@ -34,7 +34,7 @@ var products = function(server) {
 			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
 			is_group_product, is_replace_product, is_crazy_product,
 			is_point_product, is_net_point,is_free_product, is_low_price_product,
-			origin, module_number FROM products where id =?`;
+			origin, module_number FROM products where id =? and flag =0`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, id, function(err, results) {
@@ -46,6 +46,22 @@ var products = function(server) {
 				});
 			});
 		},
+
+		find_same_product : function(same_code, callback) {
+			var query = `select id FROM products where same_code=? and flag =0`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+
+				connection.query(query, [same_code], function(err, results) {
+					if (err) {
+						throw err;
+					}
+					connection.release();
+					callback(results);
+				});
+			});
+		},
+
 
 	};
 };
