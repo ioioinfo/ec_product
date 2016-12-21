@@ -6,6 +6,7 @@ exports.register = function(server, options, next){
 	server.expose('products', require('./products.js')(server));
 	server.expose('industries_configures', require('./industries_configures.js')(server));
 	server.expose('products_pictures', require('./products_pictures.js')(server));
+	server.expose('products_details', require('./products_details.js')(server));
 
 	next();
 }

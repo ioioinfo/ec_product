@@ -2,7 +2,7 @@
 ﻿var industries = require('../utils/industries.js');
 var eventproxy = require('eventproxy');
 exports.register = function(server, options, next){
-	var service_info = service_info;
+	var service_info = "ec products service";
 
 	//通过商品id找到商品
 	var get_productById = function(product_id, cb){
@@ -47,6 +47,16 @@ exports.register = function(server, options, next){
 	//通过商品id获取小图
 	var get_products_picture = function(product_ids, cb){
 		server.plugins['models'].products_pictures.find_pictures(product_ids, function(rows){
+			if (rows.length > 0) {
+				cb(false,rows);
+			}else {
+				cb(true,"商品小图片不存在！");
+			}
+		});
+	};
+	//通过id找到产品详情
+	var get_product_details = function(product_id, cb){
+		server.plugins['models'].products_details.find_product_detail(product_id, function(rows){
 			if (rows.length > 0) {
 				cb(false,rows);
 			}else {
@@ -137,6 +147,25 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//根据id找到商品详情
+		{
+			method: 'GET',
+			path: '/get_product_details',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				if (!product_id) {
+					return reply({"success":false,"message":"参数错误","service_info":service_info});
+				}
+				get_product_details(product_id, function(err, rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows,"service_info":service_info});
+					}
+				});
+			}
+		},
+
     ]);
 
     next();
