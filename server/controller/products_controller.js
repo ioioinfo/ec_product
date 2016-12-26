@@ -44,7 +44,7 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
-	//通过商品id获取小图
+	//通过商品id获取
 	var get_products_picture = function(product_ids, cb){
 		server.plugins['models'].products_pictures.find_pictures(product_ids, function(rows){
 			if (rows.length > 0) {
@@ -61,6 +61,17 @@ exports.register = function(server, options, next){
 				cb(false,rows);
 			}else {
 				cb(true,"商品小图片不存在！");
+			}
+		});
+	};
+	//通过product_ids找到商品信息
+	var find_products = function(product_ids, cb){
+		server.plugins['models'].products.find_products(product_ids, function(err,rows){
+			console.log(rows);
+			if (rows.length > 0) {
+				cb(false,rows);
+			}else {
+				cb(true,"购物车还没商品！");
 			}
 		});
 	};
@@ -165,8 +176,65 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//通过product_ids获取所有商品
+		{
+			method: 'GET',
+			path: '/find_products',
+			handler: function(request, reply){
+				var product_ids = request.query.product_ids;
+				if (!product_ids) {
+					return reply({"success":false,"message":"product_ids null","service_info":service_info});
+				}
+				product_ids = JSON.parse(product_ids);
+				console.log(product_ids);
+				find_products(product_ids, function(err, rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//通过product_ids获取所有图片
+		{
+			method: 'GET',
+			path: '/find_products_with_picture',
+			handler: function(request, reply){
+				var product_ids = request.query.product_ids;
+				product_ids = JSON.parse(product_ids);
+				console.log(product_ids);
+				var ep =  eventproxy.create("products","pictures",
+					function(products,pictures){
+						for (var i = 0; i < products.length; i++) {
+							for (var j = 0; j < pictures.length; j++) {
+								if (products[i].id == pictures[j].product_id) {
+									products[i].img = pictures[j];
+								}
+							}
+						}
+					return reply({"products":products});
+				});
 
-    ]);
+				find_products(product_ids, function(err, rows) {
+					if (!err) {
+						ep.emit("products",rows);
+					}else {
+						ep.emit("products",{});
+					}
+				});
+
+				get_products_picture(product_ids, function(err, rows){
+					if (!err) {
+						ep.emit("pictures",rows);
+					}else {
+						ep.emit("pictures",{});
+					}
+				});
+			}
+		},
+
+	]);
 
     next();
 };

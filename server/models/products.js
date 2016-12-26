@@ -62,6 +62,22 @@ var products = function(server) {
 			});
 		},
 
+		find_products : function(product_ids, cb) {
+			var query = `select * FROM products where id in (?) and flag =0`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+
+				connection.query(query, [product_ids], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+
+					cb(false,rows);
+				});
+			});
+		},
 
 	};
 };
