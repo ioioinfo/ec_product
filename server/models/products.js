@@ -5,7 +5,7 @@ var products = function(server) {
 	return {
 		find_by_industry : function(industry_id, callback) {
 			var query = `select id, product_name, product_sale_price,
-			product_marketing_price, sale_id,  after_sale_id, same_code,
+			product_marketing_price, product_brand, sale_id,  after_sale_id, same_code,
 			sku_id, product_describe, industry_id, time_to_market,
 			code, color, report_id, service_id, pay_way, product_suggestion,
 			send_way, weight, delivery_area, is_sale, is_presale, is_preorder,
@@ -27,7 +27,7 @@ var products = function(server) {
 
 		find_by_id : function(id, callback) {
 			var query = `select id, product_name, product_sale_price,
-			product_marketing_price, sale_id,  after_sale_id, same_code,
+			product_marketing_price, product_brand,sale_id,  after_sale_id, same_code,
 			sku_id, product_describe, industry_id, time_to_market,
 			code, color, report_id, service_id, pay_way, product_suggestion,
 			send_way, weight, delivery_area, is_sale, is_presale, is_preorder,
