@@ -78,6 +78,21 @@ var products = function(server) {
 				});
 			});
 		},
+		find_pos_product : function(product_id, cb) {
+			var query = `select a.id,a.product_name, a.product_sale_price, a.product_brand,
+			a.industry_id, a.color FROM products a where a.id =? and flag =0`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [product_id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 
 	};
 };
