@@ -243,6 +243,9 @@ exports.register = function(server, options, next){
 			path: '/find_products_with_picture',
 			handler: function(request, reply){
 				var product_ids = request.query.product_ids;
+				if (!product_ids) {
+					return reply({"success":false,"message":"params wrong","service_info":service_info});
+				}
 				product_ids = JSON.parse(product_ids);
 				console.log(product_ids);
 				var ep =  eventproxy.create("products","pictures",
