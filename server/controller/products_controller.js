@@ -257,7 +257,7 @@ exports.register = function(server, options, next){
 								}
 							}
 						}
-					return reply({"products":products});
+					return reply({"success":true,"products":products});
 				});
 
 				find_products(product_ids, function(err, rows) {
@@ -277,6 +277,38 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//根据product id 查询行业信息
+		{
+			method: 'GET',
+			path: '/find_properties_by_product',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				if (!product_id) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				get_productById(product_id, function(err, product){
+					if (!err) {
+						var industry_id = product.industry_id;
+						var table_name = industries[industry_id]["table_name"];
+						console.log("table_name:"+table_name);
+						server.plugins.models[table_name].find_by_product_id(product_id, function(err,rows) {
+							console.log("err:"+err);
+							var row = rows[0];
+							var properties = industries[industry_id]["properties"];
+							for (var i = 0; i < properties.length; i++) {
+								var property = properties[i];
+								property.value = row[property.field_name];
+							}
+							return reply({"success":true,"properties":properties});
+						});
+
+					}else {
+
+					}
+				});
+			}
+		},
+
 
 	]);
 

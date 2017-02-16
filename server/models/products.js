@@ -37,7 +37,7 @@ var products = function(server) {
 			origin, module_number FROM products where id =? and flag =0`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-				connection.query(query, id, function(err, results) {
+				connection.query(query, [id], function(err, results) {
 					if (err) {
 						throw err;
 					}
@@ -63,7 +63,7 @@ var products = function(server) {
 		},
 
 		find_products : function(product_ids, cb) {
-			var query = `select id,product_name,product_sale_price,industry_id,color,code FROM products where id in (?) and flag =0`;
+			var query = `select id,product_name,short_name,product_sale_price,industry_id,color,code,product_describe,color,product_marketing_price,product_brand,weight FROM products where id in (?) and flag =0`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 
