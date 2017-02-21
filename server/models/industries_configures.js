@@ -4,7 +4,7 @@ var EventProxy = require('eventproxy');
 
 var industries_configures = function(server) {
 	return {
-		find_by_industry_id : function(industry_id, product_id, callback) {
+		find_by_industry_id : function(industry_id, product_id, cb) {
 			var industry = industries[industry_id];
 			console.log(industry["table_name"]);
 			var query = `select * from `+ industry["table_name"] + ` where product_id = ?` ;
@@ -13,11 +13,13 @@ var industries_configures = function(server) {
 					if (err) {
 						throw err;
 					}
-					_.each(industry["properties"],function(property) {
-						console.log("name:"+property["name"]+",value:"+results[0][property["field_name"]])
-					})
+					var row = {};
+					if (results.length > 0) {
+						row = results[0];
+					}
+					
 					connection.release();
-					callback(results);
+					cb(results);
 				});
 			});
 		},

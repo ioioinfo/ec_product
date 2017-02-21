@@ -48,6 +48,24 @@ var products_pictures = function(server) {
 				});
 			});
 		},
+		//查询所有商品图片
+		search_pictures: function(callback) {
+			var query = `select a.location,a.product_id from products_pictures a
+				where a.flag =0` ;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, results) {
+					if (err) {
+						throw err;
+					}
+					connection.release();
+					callback(false,results);
+				});
+			});
+		},
+
+
+
 	};
 };
 

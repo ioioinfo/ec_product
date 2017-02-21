@@ -86,6 +86,27 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
+	//查询所有商品
+	var search_products = function(search_object,cb){
+		server.plugins['models'].products.search_products(search_object,function(err,rows){
+			console.log(rows);
+			if (rows) {
+				cb(false,rows);
+			}else {
+				cb(true,"商品信息不存在！");
+			}
+		});
+	}
+	//查询所有图片
+	var search_pictures = function(cb){
+		server.plugins['models'].products_pictures.search_pictures(function(err,rows){
+			if (rows) {
+				cb(false,rows);
+			}else {
+				cb(true,"商品信息不存在！");
+			}
+		});
+	}
 	server.route([
 		//产品展示页面，通过传入产品id获取产品
 		{
@@ -257,7 +278,7 @@ exports.register = function(server, options, next){
 								}
 							}
 						}
-					return reply({"success":true,"products":products});
+					return reply({"success":true,"message":"ok","products":products});
 				});
 
 				find_products(product_ids, function(err, rows) {
@@ -277,6 +298,53 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//查询所有商品及图片
+		{
+			method: 'POST',
+			path: '/search_products_info',
+			handler: function(request, reply){
+				var search_object = request.payload.search_object;
+				if (!search_object) {
+					return reply({"success":false,"message":"param wrong","service_info":service_info});
+				}
+				console.log("search_object:"+search_object);
+				search_object = JSON.parse(search_object);
+				var ep =  eventproxy.create("products","pictures",
+					function(products,pictures){
+						for (var i = 0; i < products.length; i++) {
+							for (var j = 0; j < pictures.length; j++) {
+								if (products[i].id == pictures[j].product_id) {
+									products[i].img = pictures[j];
+								}
+							}
+						}
+						var img = pictures[pictures.length-1];
+						for (var i = 0; i < products.length; i++) {
+							if (!products[i].img) {
+								products[i].img = img;
+							}
+						}
+					return reply({"success":true,"products":products});
+				});
+
+				search_products(search_object,function(err, rows) {
+					if (!err) {
+						ep.emit("products",rows);
+					}else {
+						ep.emit("products",{});
+					}
+				});
+
+				search_pictures(function(err, rows){
+					if (!err) {
+						ep.emit("pictures",rows);
+					}else {
+						ep.emit("pictures",{});
+					}
+				});
+			}
+		},
+
 		//根据product id 查询行业信息
 		{
 			method: 'GET',

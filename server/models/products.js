@@ -93,7 +93,40 @@ var products = function(server) {
 				});
 			});
 		},
+		search_products : function(search_object,cb) {
+			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
+				,a.color,a.code,a.product_describe,a.color,a.product_marketing_price,a.product_brand,a.weight
+				FROM products a
+				where a.flag =0
+			`;
+			//q product_name
+			if (search_object.q) {
+				query = query + "and a.product_name=" + JSON.stringify(search_object.q);
+			}
+			//排序
+			if (search_object.sort) {
+				query = query + "order by ";
+				if (search_object.sort=="price_asc") {
+					query = query + "a.product_sale_price asc";
+				} else if (search_object.sort=="price_desc") {
+					query = query + "a.product_sale_price desc";
+				} else {
+					query = query + "a.id";
+				}
+			}
+			console.log("query:"+query);
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 	};
 };
 
