@@ -101,7 +101,7 @@ var products = function(server) {
 			`;
 			//q product_name
 			if (search_object.q) {
-				query = query + "and a.product_name=" + JSON.stringify(search_object.q);
+				query = query + "and a.product_name like '%" + search_object.q + "%'";
 			}
 			//排序
 			if (search_object.sort) {
