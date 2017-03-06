@@ -63,7 +63,11 @@ var products = function(server) {
 		},
 
 		find_products : function(product_ids, cb) {
-			var query = `select id,product_name,short_name,product_sale_price,industry_id,color,code,product_describe,color,product_marketing_price,product_brand,weight FROM products where id in (?) and flag =0`;
+			var query = `select id,product_name,short_name,product_sale_price,industry_id
+				,color,code,color,product_marketing_price,product_brand,weight
+				FROM products
+				where id in (?) and flag =0
+			`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 
@@ -95,7 +99,7 @@ var products = function(server) {
 		},
 		search_products : function(search_object,cb) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
-				,a.color,a.code,a.product_describe,a.color,a.product_marketing_price,a.product_brand,a.weight
+				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight
 				FROM products a
 				where a.flag =0
 			`;
@@ -114,6 +118,9 @@ var products = function(server) {
 					query = query + "a.id";
 				}
 			}
+
+			query = query + " limit 100 ";
+			
 			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 

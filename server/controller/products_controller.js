@@ -14,16 +14,6 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
-	//通过商品id，行业id找到行业表及信息
-	var get_product_industry = function(industry_id, product_id, cb){
-		server.plugins['models'].industries_configures.find_by_industry_id(industry_id, product_id, function(rows){
-			if (rows[0]) {
-				cb(false,rows[0]);
-			}else {
-				cb(true,"商品行业信息不存在！");
-			}
-		});
-	};
 	//通过商品id找到图片
 	var get_picturesById = function(product_id, cb){
 		server.plugins['models'].products_pictures.find_by_product_id(product_id,function(rows){
