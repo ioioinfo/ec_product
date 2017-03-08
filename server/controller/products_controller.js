@@ -67,7 +67,7 @@ exports.register = function(server, options, next){
 	};
 	//通过id获得pos商品
 	var get_pos_product = function(product_id,cb){
-		server.plugins['models'].products.find_pos_product(product_id,function(err,rows){
+		server.plugins['models'].products.get_pos_product(product_id,function(err,rows){
 			console.log(rows);
 			if (rows[0]) {
 				cb(false,rows[0]);

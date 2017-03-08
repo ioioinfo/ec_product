@@ -82,9 +82,12 @@ var products = function(server) {
 				});
 			});
 		},
-		find_pos_product : function(product_id, cb) {
+		get_pos_product : function(product_id, cb) {
 			var query = `select a.id,a.product_name, a.product_sale_price, a.product_brand,
-			a.industry_id, a.color FROM products a where a.id =? and flag =0`;
+				a.industry_id, a.color
+				from products a
+				where a.id =? and flag =0
+			`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [product_id], function(err, rows) {
@@ -120,7 +123,7 @@ var products = function(server) {
 			}
 
 			query = query + " limit 100 ";
-			
+
 			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 
