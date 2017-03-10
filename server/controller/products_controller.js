@@ -6,11 +6,15 @@ exports.register = function(server, options, next){
 
 	//通过商品id找到商品
 	var get_productById = function(product_id, cb){
-		server.plugins['models'].products.find_by_id(product_id,function(rows){
-			if (rows[0]) {
-				cb(false,rows[0]);
+		server.plugins['models'].products.find_by_id(product_id,function(err,rows){
+			if (!err) {
+				if (rows[0]) {
+					cb(false,rows[0]);
+				}else {
+					cb(false,{});
+				}
 			}else {
-				cb(true,"商品信息不存在！");
+				cb(true,rows)
 			}
 		});
 	};
@@ -111,7 +115,7 @@ exports.register = function(server, options, next){
 					if (!err) {
 						return reply({"success":true,"message":"ok","row":row,"service_info":service_info});
 					}else {
-						return reply({"success":false,"message":row,"service_info":service_info});
+						return reply({"success":false,"message":row.message,"service_info":service_info});
 					}
 				});
 			}
@@ -221,7 +225,17 @@ exports.register = function(server, options, next){
 				}
 				get_pos_product(product_id, function(err, row){
 					if (!err) {
-						return reply({"success":true,"message":"ok","row":row,"service_info":service_info});
+						if (!row) {
+							return reply({"success":false,"message":"product not exists","service_info":service_info});
+						}
+						var industry_id = row.industry_id;
+						var industry = industries[industry_id];
+						if (!industry) {
+							return reply({"success":false,"message":"行业不存在","service_info":service_info});
+						}
+						var sale_properties = industry["sale_properties"];
+
+						return reply({"success":true,"message":"ok","row":row,"sale_properties":sale_properties,"service_info":service_info});
 					}else {
 						return reply({"success":false,"message":row,"service_info":service_info});
 					}
@@ -334,7 +348,6 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
-
 		//根据product id 查询行业信息
 		{
 			method: 'GET',
@@ -346,6 +359,9 @@ exports.register = function(server, options, next){
 				}
 				get_productById(product_id, function(err, product){
 					if (!err) {
+						if (!product) {
+							return reply({"success":true,"properties":{},"message":"ok"});
+						}
 						var industry_id = product.industry_id;
 						var table_name = industries[industry_id]["table_name"];
 						console.log("table_name:"+table_name);
@@ -357,15 +373,15 @@ exports.register = function(server, options, next){
 								var property = properties[i];
 								property.value = row[property.field_name];
 							}
-							return reply({"success":true,"properties":properties});
+							return reply({"success":true,"properties":properties,"message":"ok"});
 						});
-
 					}else {
-
+						return reply({"success":false,"message":product.message});
 					}
 				});
 			}
 		},
+
 
 
 	]);

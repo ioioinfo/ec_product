@@ -25,7 +25,7 @@ var products = function(server) {
 			});
 		},
 
-		find_by_id : function(id, callback) {
+		find_by_id : function(id, cb) {
 			var query = `select id, product_name, product_sale_price,
 			product_marketing_price, product_brand,sale_id,  after_sale_id, same_code,
 			sku_id, product_describe, industry_id, time_to_market,
@@ -38,11 +38,13 @@ var products = function(server) {
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [id], function(err, results) {
-					if (err) {
-						throw err;
-					}
 					connection.release();
-					callback(results);
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					cb(false,results);
 				});
 			});
 		},
