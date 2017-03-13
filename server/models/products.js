@@ -3,6 +3,25 @@ var EventProxy = require('eventproxy');
 
 var products = function(server) {
 	return {
+		get_products_list : function(cb) {
+			var query = `select id,product_name,short_name,product_sale_price,industry_id
+				,color,code,color,product_marketing_price,product_brand,weight
+				FROM products
+				where flag =0
+				limit 10
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+
 		find_by_industry : function(industry_id, callback) {
 			var query = `select id, product_name, product_sale_price,
 			product_marketing_price, product_brand, sale_id,  after_sale_id, same_code,
@@ -70,16 +89,13 @@ var products = function(server) {
 				FROM products
 				where id in (?) and flag =0
 			`;
-
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-
 				connection.query(query, [product_ids], function(err, rows) {
 					connection.release();
 					if (err) {
 						cb(true,null);
 						return;
 					}
-
 					cb(false,rows);
 				});
 			});

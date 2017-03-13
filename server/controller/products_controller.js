@@ -102,6 +102,20 @@ exports.register = function(server, options, next){
 		});
 	}
 	server.route([
+		//查询商品列表
+		{
+			method: 'GET',
+			path: '/get_products_list',
+			handler: function(request, reply){
+				server.plugins['models'].products.get_products_list(function(err,rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","products":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":results.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//产品展示页面，通过传入产品id获取产品
 		{
 			method: 'GET',
@@ -367,11 +381,14 @@ exports.register = function(server, options, next){
 						console.log("table_name:"+table_name);
 						server.plugins.models[table_name].find_by_product_id(product_id, function(err,rows) {
 							console.log("err:"+err);
-							var row = rows[0];
 							var properties = industries[industry_id]["properties"];
-							for (var i = 0; i < properties.length; i++) {
-								var property = properties[i];
-								property.value = row[property.field_name];
+
+							if (rows.length>0) {
+								var row = rows[0];
+								for (var i = 0; i < properties.length; i++) {
+									var property = properties[i];
+									property.value = row[property.field_name];
+								}
 							}
 							return reply({"success":true,"properties":properties,"message":"ok"});
 						});
