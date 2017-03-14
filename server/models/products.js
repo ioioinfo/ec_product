@@ -60,7 +60,7 @@ var products = function(server) {
 					connection.release();
 					if (err) {
 						console.log(err);
-						cb(true,results);
+						cb(true,null);
 						return;
 					}
 					cb(false,results);
@@ -124,6 +124,10 @@ var products = function(server) {
 				FROM products a
 				where a.flag =0
 			`;
+			// sort_id
+			if (search_object.sort_id) {
+				query = query + "and a.sort_id =" + search_object.sort_id;
+			}
 			//q product_name
 			if (search_object.q) {
 				query = query + "and a.product_name like '%" + search_object.q + "%'";

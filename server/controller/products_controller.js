@@ -8,10 +8,11 @@ exports.register = function(server, options, next){
 	var get_productById = function(product_id, cb){
 		server.plugins['models'].products.find_by_id(product_id,function(err,rows){
 			if (!err) {
+				console.log("rows:"+JSON.stringify(rows));
 				if (rows[0]) {
 					cb(false,rows[0]);
 				}else {
-					cb(false,{});
+					cb(false,null);
 				}
 			}else {
 				cb(true,rows)
@@ -325,8 +326,8 @@ exports.register = function(server, options, next){
 				if (!search_object) {
 					return reply({"success":false,"message":"param wrong","service_info":service_info});
 				}
-				console.log("search_object:"+search_object);
 				search_object = JSON.parse(search_object);
+				console.log("search_object:"+search_object);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
@@ -374,7 +375,8 @@ exports.register = function(server, options, next){
 				get_productById(product_id, function(err, product){
 					if (!err) {
 						if (!product) {
-							return reply({"success":true,"properties":{},"message":"ok"});
+							console.log("123");
+							return reply({"success":false,"message":"查不到商品明细！","message":"ok"});
 						}
 						var industry_id = product.industry_id;
 						var table_name = industries[industry_id]["table_name"];
