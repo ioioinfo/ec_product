@@ -84,7 +84,6 @@ exports.register = function(server, options, next){
 	//查询所有商品
 	var search_products = function(search_object,cb){
 		server.plugins['models'].products.search_products(search_object,function(err,rows){
-			console.log(rows);
 			if (rows) {
 				cb(false,rows);
 			}else {

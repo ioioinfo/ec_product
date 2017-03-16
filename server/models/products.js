@@ -126,15 +126,24 @@ var products = function(server) {
 			`;
 			// sort_id
 			if (search_object.sort_id) {
-				query = query + "and a.sort_id =" + search_object.sort_id;
+				query = query + " and a.sort_id ='" + search_object.sort_id+"'";
 			}
 			//q product_name
 			if (search_object.q) {
-				query = query + "and a.product_name like '%" + search_object.q + "%'";
+				query = query + " and a.product_name like '%" + search_object.q + "%'";
+			}
+			if (search_object.size_name) {
+				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.size_name = '" + search_object.size_name + "')";
+			}
+			if (search_object.is_new) {
+				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.is_new = '" + search_object.is_new + "')";
+			}
+			if (search_object.row_materials) {
+				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.row_materials = '" + search_object.row_materials + "')";
 			}
 			//排序
 			if (search_object.sort) {
-				query = query + "order by ";
+				query = query + " order by ";
 				if (search_object.sort=="price_asc") {
 					query = query + "a.product_sale_price asc";
 				} else if (search_object.sort=="price_desc") {
