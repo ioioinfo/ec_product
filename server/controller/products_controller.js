@@ -70,6 +70,18 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
+	//通过product_ids找到善淘信息
+	var find_shantao_infos = function(product_ids, cb){
+		server.plugins['models'].industry_santao.find_shantao_infos(product_ids, function(err,rows){
+			console.log(rows);
+			if (rows.length > 0) {
+				cb(false,rows);
+			}else {
+				cb(true,"善淘属性null！");
+			}
+		});
+	};
+
 	//通过id获得pos商品
 	var get_pos_product = function(product_id,cb){
 		server.plugins['models'].products.get_pos_product(product_id,function(err,rows){
@@ -358,6 +370,25 @@ exports.register = function(server, options, next){
 						ep.emit("pictures",rows);
 					}else {
 						ep.emit("pictures",{});
+					}
+				});
+			}
+		},
+		//更加产品id在善淘
+		{
+			method: 'GET',
+			path: '/find_shantao_infos',
+			handler: function(request, reply){
+				var product_ids = request.query.product_ids;
+				if (!product_ids) {
+					return reply({"success":false,"message":"product_ids null","service_info":service_info});
+				}
+				product_ids = JSON.parse(product_ids);
+				find_shantao_infos(product_ids, function(err, rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
 				});
 			}
