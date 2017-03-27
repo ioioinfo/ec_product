@@ -141,6 +141,22 @@ var products = function(server) {
 			if (search_object.row_materials) {
 				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.row_materials = '" + search_object.row_materials + "')";
 			}
+			console.log("search_object.sort_ids:"+search_object.sort_ids);
+			if (search_object.sort_ids) {
+				// var sort_ids = JSON.parse(search_object.sort_ids);
+				// console.log("sort_ids:"+sort_ids);
+				query = query + " and a.sort_id in " + search_object.sort_ids;
+				// for (var i = 0; i < sort_ids.length; i++) {
+				// 	query = query + " and a.sort_id ='" + sort_ids[i] +"'";
+				// 	// console.log("sort_id:"+sort_id);
+				// 	// if (i = 0) {
+				// 	// 	query = query + " and a.sort_id ='" + sort_ids[0] +"'";
+				// 	// }else {
+				// 	// 	query = query + " or a.sort_id ='" + sort_ids[i] +"'";
+				// 	// }
+				// }
+			}
+
 			//排序
 			if (search_object.sort) {
 				query = query + " order by ";
