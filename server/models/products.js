@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var EventProxy = require('eventproxy');
+const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
@@ -184,6 +185,65 @@ var products = function(server) {
 				});
 			});
 		},
+		//保存商品
+		save_product : function(product,cb){
+			var product = JSON.parse(product);
+			var query = `insert into products (id, product_name, sort_id,
+			product_sale_price, product_marketing_price, product_brand,
+			product_describe, time_to_market, color, weight, guarantee,code,
+			create_at, update_at, flag)
+			values
+			(uuid(),?,?,
+		 	?,?,?,
+			?,?,?,?,?,
+			now(),now(),0)` ;
+			console.log(query);
+			var columns=[product.product_name,product.sort_id,
+				product.product_sale_price,product.product_marketing_price,
+				product.product_brand,product.product_describe,product.time_to_market,
+				product.color,product.weight,product.guarantee,product.id
+			];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
+		//保存商品简单版
+		save_product_simple : function(product,cb){
+			var product = JSON.parse(product);
+			var query = `insert into products (id, product_name,
+				product_sale_price, product_marketing_price, code,
+				industry_id,create_at, update_at, flag)
+				values
+				(?,?,
+			 	?,?,?,
+				?,now(),now(),0)` ;
+				console.log(query);
+			var id = uuidV1();
+			var columns=[id,product.product_name,product.product_sale_price,
+				product.product_sale_price, product.id,product.industry_id
+			];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					results.product_id = id;
+					cb(false,results);
+				});
+			});
+		}
+
 	};
 };
 

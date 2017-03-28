@@ -3,6 +3,28 @@ var EventProxy = require('eventproxy');
 
 var products_pictures = function(server) {
 	return {
+		//保存产品图片
+		save_picture : function(picture,cb){
+			var product = JSON.parse(product);
+			var query = `insert into products_pictures (id, product_id,
+				location,create_at, update_at, flag)
+				values
+				(uuid(),?,
+				?,now(),now(),0)` ;
+				console.log(query);
+			var columns=[picture.product_id,picture.location];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
 		//根据id找到商品大图
 		find_by_product_id : function(product_id, callback) {
 			var query = `select location from products_pictures where product_id = ? and order_index =1 and flag =0` ;

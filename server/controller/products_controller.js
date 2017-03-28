@@ -114,6 +114,63 @@ exports.register = function(server, options, next){
 		});
 	}
 	server.route([
+		//保存图片
+		{
+			method: 'GET',
+			path: '/save_product_simple',
+			handler: function(request, reply){
+				var pictures = request.query.pictures;
+				pictures = JSON.parse(pictures);
+				for (var i = 0; i < pictures.length; i++) {
+					var picture = pictures[i];
+					server.plugins['models'].products.save_picture(picture,function(err,rows){
+						if (rows.affectedRows>0) {
+							return reply({"success":true,"message":"ok","service_info":service_info});
+						}else {
+							return reply({"success":false,"message":results.message,"service_info":service_info});
+						}
+					});
+				}
+			}
+		},
+		//保存商品 简易版
+		{
+			method: 'POST',
+			path: '/save_product_simple',
+			handler: function(request, reply){
+				var product = {
+					"product_id" : request.payload.product_id,
+					"product_name" : request.payload.product_name,
+					"product_sale_price" : request.payload.product_sale_price,
+					"industry_id" : request.payload.industry_id
+				}
+				product = JSON.stringify(product);
+				server.plugins['models'].products.save_product_simple(product,function(err,rows){
+					console.log("rows:"+JSON.stringify(rows));
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info,"product_id":rows.product_id});
+					}else {
+						return reply({"success":false,"message":results.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+
+		//保存商品
+		{
+			method: 'POST',
+			path: '/save_product',
+			handler: function(request, reply){
+				var product = request.payload.product;
+				server.plugins['models'].products.save_product(product,function(err,rows){
+					if (results.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":results.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//查询商品列表
 		{
 			method: 'GET',
