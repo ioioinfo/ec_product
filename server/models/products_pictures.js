@@ -3,6 +3,29 @@ var EventProxy = require('eventproxy');
 
 var products_pictures = function(server) {
 	return {
+		//上传图片保存
+		save_product_picture : function(img_data,cb){
+			var img_data = JSON.parse(img_data);
+			var query = `insert into products_pictures (id, product_id,
+				location, order_index, create_at, update_at, flag)
+				values
+				(uuid(),?,
+				?,?,now(),now(),0)` ;
+				console.log(query);
+			var columns=[img_data.product_id,img_data.location,img_data.order_index];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
+
 		//保存产品图片
 		save_picture : function(picture,cb){
 			var product = JSON.parse(product);

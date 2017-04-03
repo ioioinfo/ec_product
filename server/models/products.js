@@ -228,7 +228,42 @@ var products = function(server) {
 				console.log(query);
 			var id = uuidV1();
 			var columns=[id,product.product_name,product.product_sale_price,
-				product.product_sale_price, product.id,product.industry_id
+				product.product_sale_price, product.product_id,product.industry_id
+			];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					results.product_id = id;
+					cb(false,results);
+				});
+			});
+		},
+		//保存商品 复杂版
+		save_product_complex : function(product,cb){
+			var product = JSON.parse(product);
+			var query = `insert into products (id, product_name,
+				product_sale_price, product_marketing_price, code, industry_id,
+				sort_id, product_brand, product_describe, time_to_market, color,
+				weight, guarantee,barcode,
+				create_at, update_at, flag)
+				values
+				(?,?,
+				?,?,?,?,
+				?,?,?,?,?,
+				?,?,?,
+				now(),now(),0)` ;
+				console.log(query);
+			var id = uuidV1();
+			var columns=[id,product.product_name,product.product_sale_price,
+				product.product_marketing_price, product.product_id,product.industry_id,
+				product.sort_id, product.product_brand, product.product_describe,
+				product.time_to_market, product.color, product.weight,
+				product.guarantee, product.barcode
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
@@ -243,6 +278,9 @@ var products = function(server) {
 				});
 			});
 		}
+
+
+
 
 	};
 };

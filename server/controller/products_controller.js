@@ -114,23 +114,91 @@ exports.register = function(server, options, next){
 		});
 	}
 	server.route([
-		//保存图片
+		//保存图片 批量
 		{
-			method: 'GET',
-			path: '/save_product_simple',
+			method: 'POST',
+			path: '/save_product_picture',
 			handler: function(request, reply){
-				var pictures = request.query.pictures;
-				pictures = JSON.parse(pictures);
-				for (var i = 0; i < pictures.length; i++) {
-					var picture = pictures[i];
-					server.plugins['models'].products.save_picture(picture,function(err,rows){
+				var product_id = request.payload.product_id;
+				var imgs = request.payload.imgs;
+				if (!product_id || !imgs) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				imgs = JSON.parse(imgs);
+				for (var i = 0; i < imgs.length; i++) {
+					var img = imgs[i];
+					var order_index = 0;
+					if (i == 0) {
+						order_index = 1;
+					}
+					var img_data = {
+						"product_id" : product_id,
+						"location" : img,
+						"order_index" : order_index
+					};
+					img_data = JSON.stringify(img_data);
+					server.plugins['models'].products_pictures.save_product_picture(img_data,function(err,rows){
+						console.log("rows:"+JSON.stringify(rows));
 						if (rows.affectedRows>0) {
 							return reply({"success":true,"message":"ok","service_info":service_info});
 						}else {
-							return reply({"success":false,"message":results.message,"service_info":service_info});
+							return reply({"success":false,"message":rows.message,"service_info":service_info});
 						}
 					});
 				}
+			}
+		},
+
+		//保存商品 复杂版
+		{
+			method: 'POST',
+			path: '/save_product_complex',
+			handler: function(request, reply){
+				var product = {
+					"product_id" : request.payload.product_id,
+					"product_name" : request.payload.product_name,
+					"product_sale_price" : request.payload.product_sale_price,
+					"product_marketing_price" : request.payload.product_marketing_price,
+					"industry_id" : request.payload.industry_id,
+					"sort_id" : request.payload.sort_id,
+					"product_brand" : request.payload.product_brand,
+					"product_describe" : request.payload.product_describe,
+					"time_to_market" : request.payload.time_to_market,
+					"color" : request.payload.color,
+					"weight" : request.payload.weight,
+					"guarantee" : request.payload.guarantee,
+					"barcode" : request.payload.barcode
+				}
+				if (!product.product_id || !product.product_name || !product.product_sale_price || !product.sort_id || !product.barcode || !product.product_marketing_price) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				var industry_id = product.industry_id;
+				product = JSON.stringify(product);
+				server.plugins['models'].products.save_product_complex(product,function(err,rows){
+					console.log("rows:"+JSON.stringify(rows));
+					if (rows.affectedRows>0) {
+						var industry = industries[industry_id];
+						var product_id = rows.product_id;
+						var santao = {
+							"product_id" : product_id,
+							"is_new" : request.payload.is_new,
+							"row_materials" : request.payload.row_materials,
+							"batch_code" : request.payload.batch_code,
+							"size_name" : request.payload.size_name
+						};
+						santao = JSON.stringify(santao);
+						//暂时写死
+						server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
+							if (rows.affectedRows>0) {
+								return reply({"success":true,"message":"ok","service_info":service_info,"product_id":product_id});
+							}else {
+								return reply({"success":false,"message":results.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":results.message,"service_info":service_info});
+					}
+				});
 			}
 		},
 		//保存商品 简易版

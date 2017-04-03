@@ -38,6 +38,31 @@ var industry_santao = function(server) {
 				});
 			});
 		},
+		//保存行业信息
+		save_santao_industy : function(santao,cb){
+			var santao = JSON.parse(santao);
+			var query = `insert into industry_santao (product_id, is_new, row_materials,
+				size_name, batch_code, created_at, updated_at, flag)
+				values
+				(?,?,?,
+			 	?,?,now(),now(),0)` ;
+			console.log(query);
+			var columns=[santao.product_id,santao.is_new,santao.row_materials,
+				santao.size_name,santao.batch_code
+			];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,results);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		}
+
 
 
 
