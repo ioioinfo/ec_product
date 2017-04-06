@@ -231,10 +231,10 @@ exports.register = function(server, options, next){
 			handler: function(request, reply){
 				var product = request.payload.product;
 				server.plugins['models'].products.save_product(product,function(err,rows){
-					if (results.affectedRows>0) {
+					if (rows.affectedRows>0) {
 						return reply({"success":true,"message":"ok","service_info":service_info});
 					}else {
-						return reply({"success":false,"message":results.message,"service_info":service_info});
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
 				});
 			}
