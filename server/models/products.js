@@ -245,7 +245,6 @@ var products = function(server) {
 		},
 		//保存商品 复杂版
 		save_product_complex : function(product,cb){
-			var product = JSON.parse(product);
 			var query = `insert into products (id, product_name,
 				product_sale_price, product_marketing_price, code, industry_id,
 				sort_id, product_brand, product_describe, time_to_market, color,
@@ -257,13 +256,11 @@ var products = function(server) {
 				?,?,?,?,?,
 				?,?,?,
 				now(),now(),0)` ;
-				console.log(query);
 			var id = uuidV1();
-			var columns=[id,product.product_name,product.product_sale_price,
-				product.product_marketing_price, product.product_id,product.industry_id,
-				product.sort_id, product.product_brand, product.product_describe,
-				product.time_to_market, product.color, product.weight,
-				product.guarantee, product.barcode
+			var columns=[id,product.product_name,
+				product.product_sale_price,product.product_marketing_price, product.product_id,product.industry_id,
+				product.sort_id, product.product_brand, product.product_describe,product.time_to_market, product.color,
+				product.weight,product.guarantee, product.barcode
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
@@ -277,8 +274,23 @@ var products = function(server) {
 					cb(false,results);
 				});
 			});
+		},
+		//查询所有商品 code
+		search_product_code : function(code, cb) {
+			var query = `select id FROM products
+				where code =? and flag =0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [code], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
 		}
-
 
 
 

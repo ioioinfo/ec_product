@@ -1,6 +1,43 @@
 // Base routes for item..
+const uu_request = require('../utils/uu_request');
 ﻿var industries = require('../utils/industries.js');
 var eventproxy = require('eventproxy');
+var async = require('async');
+
+
+var do_get_method = function(url,cb){
+	uu_request.get(url, function(err, response, body){
+		if (!err && response.statusCode === 200) {
+			var content = JSON.parse(body);
+			do_result(false, content, cb);
+		} else {
+			cb(true, null);
+		}
+	});
+};
+//所有post调用接口方法
+var do_post_method = function(url,data,cb){
+	uu_request.request(url, data, function(err, response, body) {
+		console.log(body);
+		if (!err && response.statusCode === 200) {
+			do_result(false, body, cb);
+		} else {
+			cb(true,null);
+		}
+	});
+};
+//处理结果
+var do_result = function(err,result,cb){
+	if (!err) {
+		if (result.success) {
+			cb(false,result);
+		}else {
+			cb(true,result);
+		}
+	}else {
+		cb(true,null);
+	}
+};
 exports.register = function(server, options, next){
 	var service_info = "ec products service";
 
@@ -81,7 +118,6 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
-
 	//通过id获得pos商品
 	var get_pos_product = function(product_id,cb){
 		server.plugins['models'].products.get_pos_product(product_id,function(err,rows){
@@ -102,7 +138,7 @@ exports.register = function(server, options, next){
 				cb(true,"商品信息不存在！");
 			}
 		});
-	}
+	};
 	//查询所有图片
 	var search_pictures = function(cb){
 		server.plugins['models'].products_pictures.search_pictures(function(err,rows){
@@ -112,7 +148,12 @@ exports.register = function(server, options, next){
 				cb(true,"商品信息不存在！");
 			}
 		});
-	}
+	};
+	//保存库存
+	var save_stock_instruction = function(data,cb){
+		var url = "http://211.149.248.241:12001/save_stock_instruction";
+		do_post_method(url,data,cb);
+	};
 	server.route([
 		//保存图片 批量
 		{
@@ -148,37 +189,19 @@ exports.register = function(server, options, next){
 				}
 			}
 		},
-
-		//保存商品 复杂版
+		//新增商品
 		{
 			method: 'POST',
-			path: '/save_product_complex',
+			path: '/add_product',
 			handler: function(request, reply){
-				var product = {
-					"product_id" : request.payload.product_id,
-					"product_name" : request.payload.product_name,
-					"product_sale_price" : request.payload.product_sale_price,
-					"product_marketing_price" : request.payload.product_marketing_price,
-					"industry_id" : request.payload.industry_id,
-					"sort_id" : request.payload.sort_id,
-					"product_brand" : request.payload.product_brand,
-					"product_describe" : request.payload.product_describe,
-					"time_to_market" : request.payload.time_to_market,
-					"color" : request.payload.color,
-					"weight" : request.payload.weight,
-					"guarantee" : request.payload.guarantee,
-					"barcode" : request.payload.barcode
-				}
-				if (!product.product_id || !product.product_name || !product.product_sale_price || !product.sort_id || !product.barcode || !product.product_marketing_price) {
-					return reply({"success":false,"message":"params wrong"});
-				}
+				var product = request.payload.product;
+				console.log("product:"+product);
+				product = JSON.parse(product);
 				var industry_id = product.industry_id;
-				product = JSON.stringify(product);
-				server.plugins['models'].products.save_product_complex(product,function(err,rows){
-					console.log("rows:"+JSON.stringify(rows));
-					if (rows.affectedRows>0) {
+				server.plugins['models'].products.save_product_complex(product,function(err,result){
+					if (result.affectedRows>0) {
 						var industry = industries[industry_id];
-						var product_id = rows.product_id;
+						var product_id = result.product_id;
 						var santao = {
 							"product_id" : product_id,
 							"is_new" : request.payload.is_new,
@@ -189,15 +212,142 @@ exports.register = function(server, options, next){
 						santao = JSON.stringify(santao);
 						//暂时写死
 						server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
-							if (rows.affectedRows>0) {
-								return reply({"success":true,"message":"ok","service_info":service_info,"product_id":product_id});
+							if (!err) {
+								return reply({"success":true,"service_info":service_info})
 							}else {
-								return reply({"success":false,"message":results.message,"service_info":service_info});
+								return reply({"success":false,"message":rows.message,"service_info":service_info})
 							}
 						});
 					}else {
-						return reply({"success":false,"message":results.message,"service_info":service_info});
+						return reply({"success":false,"message":result.message,"service_info":service_info})
 					}
+				});
+			}
+		},
+		//保存商品库存
+		{
+			method: 'POST',
+			path: '/save_product_inventory',
+			handler: function(request, reply){
+				var inventory = request.payload.inventory;
+				inventory = JSON.parse(inventory);
+				var no_products = [];
+				var save_fail = [];
+				var save_success = [];
+
+				console.log("async begin--------");
+				async.each(inventory, function(invent, cb) {
+
+					server.plugins['models'].products.search_product_code(invent.product_id,function(err,rows){
+						if (!err) {
+							console.log("rows:"+JSON.stringify(rows));
+							if (rows.length>0) {
+								var product_id = rows[0].id;
+								var industry_id;
+								var instruction = {
+									"shipper" : "shantao",
+									"supplier_id" : 1,
+									"warehouse_id" : 1,
+									"region_id" : 1
+								}
+								if (invent.size_name) {
+									console.log("size_name:"+JSON.stringify(invent.size_name));
+									industry_id = 101;
+									instruction.size_name = invent.size_name;
+								}else {
+									industry_id = 102;
+								}
+								var instruction = {
+									"shipper" : "shantao",
+									"supplier_id" : 1,
+									"warehouse_id" : 1,
+									"region_id" : 1,
+									"size_name" : invent.size_name
+								}
+								var data = {
+									"product_id" : product_id,
+									"industry_id" : industry_id,
+									"instruction" : JSON.stringify(instruction),
+									"strategy" : "modify",
+									"quantity" : invent.quantity,
+									"batch_id" : "test"
+								};
+								save_stock_instruction(data,function(err,content){
+									if (!err) {
+										save_success.push(invent);
+										cb();
+									}else {
+										save_fail.push(invent);
+										cb();
+									}
+								});
+							}else {
+								no_products.push(invent);
+								cb();
+							}
+						}else {
+							save_fail.push(product);
+							cb();
+						}
+					});
+				}, function(err) {
+					return reply({"success":true,"success_num":save_success.length,"service_info":service_info,"no_products":no_products,"no_products":no_products.length,"save_fail":save_fail,"fail_num":save_fail.length});
+				});
+			}
+		},
+		//保存商品 复杂版
+		{
+			method: 'POST',
+			path: '/save_product_complex',
+			handler: function(request, reply){
+				var products = request.payload.products;
+				products = JSON.parse(products);
+				var repeat_products = [];
+				var save_fail = [];
+				var save_success = [];
+				console.log("async begin--------");
+				async.each(products, function(product, cb) {
+					var industry_id = product.industry_id;
+
+					server.plugins['models'].products.search_product_code(product.product_id,function(err,rows){
+						if (!err) {
+							console.log("rows:"+JSON.stringify(rows));
+							if (rows.length>0) {
+								repeat_products.push(product);
+								console.log("repeat_products.length:"+repeat_products.length);
+								cb();
+							}else {
+								server.plugins['models'].products.save_product_complex(product,function(err,result){
+									if (result.affectedRows>0) {
+										save_success.push(product);
+										var industry = industries[industry_id];
+										var product_id = result.product_id;
+										var santao = {
+											"product_id" : product_id,
+											"is_new" : request.payload.is_new,
+											"row_materials" : request.payload.row_materials,
+											"batch_code" : request.payload.batch_code,
+											"size_name" : request.payload.size_name
+										};
+										santao = JSON.stringify(santao);
+										//暂时写死
+										server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
+											cb();
+										});
+									}else {
+										save_fail.push(product);
+										cb();
+									}
+								});
+							}
+						}else {
+							save_fail.push(product);
+							cb();
+						}
+					});
+
+				}, function(err) {
+					return reply({"success":true,"success_num":save_success.length,"service_info":service_info,"repeat_products":repeat_products,"repeat_num":repeat_products.length,"save_fail":save_fail,"fail_num":save_fail.length});
 				});
 			}
 		},
