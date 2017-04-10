@@ -4,6 +4,39 @@ const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
+		//单条商品上架
+		product_up : function(id, cb) {
+			var query = `update products set is_down = 1
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+		//单条商品下架
+		product_down : function(id, cb) {
+			var query = `update products set is_down = 0
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+
 		get_products_list : function(cb) {
 			var query = `select id,product_name,short_name,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight
@@ -123,7 +156,7 @@ var products = function(server) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
 				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight
 				FROM products a
-				where a.flag =0
+				where a.flag =0 and is_down = 1
 			`;
 			// sort_id
 			if (search_object.sort_id) {

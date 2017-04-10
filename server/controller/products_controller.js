@@ -155,6 +155,36 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//商品下架
+		{
+			method: 'POST',
+			path: '/product_down',
+			handler: function(request, reply){
+				var id = request.payload.product_id;
+				server.plugins['models'].products.product_down(id,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//商品上架
+		{
+			method: 'POST',
+			path: '/product_up',
+			handler: function(request, reply){
+				var id = request.payload.product_id;
+				server.plugins['models'].products.product_up(id,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//保存图片 批量
 		{
 			method: 'POST',
