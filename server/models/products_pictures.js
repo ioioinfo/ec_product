@@ -50,7 +50,7 @@ var products_pictures = function(server) {
 		},
 		//根据id找到商品大图
 		find_by_product_id : function(product_id, callback) {
-			var query = `select location from products_pictures where product_id = ? and order_index =1 and flag =0` ;
+			var query = `select location from products_pictures where product_id = ? and flag =0` ;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [product_id], function(err, results) {
 					if (err) {

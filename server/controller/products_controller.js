@@ -178,15 +178,16 @@ exports.register = function(server, options, next){
 						"order_index" : order_index
 					};
 					img_data = JSON.stringify(img_data);
+					console.log("i:"+i);
 					server.plugins['models'].products_pictures.save_product_picture(img_data,function(err,rows){
-						console.log("rows:"+JSON.stringify(rows));
 						if (rows.affectedRows>0) {
-							return reply({"success":true,"message":"ok","service_info":service_info});
+
 						}else {
 							return reply({"success":false,"message":rows.message,"service_info":service_info});
 						}
 					});
 				}
+				return reply({"success":true,"message":"ok","service_info":service_info});
 			}
 		},
 		//新增商品
