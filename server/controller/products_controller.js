@@ -18,7 +18,6 @@ var do_get_method = function(url,cb){
 //所有post调用接口方法
 var do_post_method = function(url,data,cb){
 	uu_request.request(url, data, function(err, response, body) {
-		console.log(body);
 		if (!err && response.statusCode === 200) {
 			do_result(false, body, cb);
 		} else {
@@ -45,7 +44,6 @@ exports.register = function(server, options, next){
 	var get_productById = function(product_id, cb){
 		server.plugins['models'].products.find_by_id(product_id,function(err,rows){
 			if (!err) {
-				console.log("rows:"+JSON.stringify(rows));
 				if (rows[0]) {
 					cb(false,rows[0]);
 				}else {
@@ -99,7 +97,6 @@ exports.register = function(server, options, next){
 	//通过product_ids找到商品信息
 	var find_products = function(product_ids, cb){
 		server.plugins['models'].products.find_products(product_ids, function(err,rows){
-			console.log(rows);
 			if (rows.length > 0) {
 				cb(false,rows);
 			}else {
@@ -110,7 +107,6 @@ exports.register = function(server, options, next){
 	//通过product_ids找到善淘信息
 	var find_shantao_infos = function(product_ids, cb){
 		server.plugins['models'].industry_santao.find_shantao_infos(product_ids, function(err,rows){
-			console.log(rows);
 			if (rows.length > 0) {
 				cb(false,rows);
 			}else {
@@ -121,7 +117,6 @@ exports.register = function(server, options, next){
 	//通过id获得pos商品
 	var get_pos_product = function(product_id,cb){
 		server.plugins['models'].products.get_pos_product(product_id,function(err,rows){
-			console.log(rows);
 			if (rows[0]) {
 				cb(false,rows[0]);
 			}else {
@@ -208,7 +203,6 @@ exports.register = function(server, options, next){
 						"order_index" : order_index
 					};
 					img_data = JSON.stringify(img_data);
-					console.log("i:"+i);
 					server.plugins['models'].products_pictures.save_product_picture(img_data,function(err,rows){
 						if (rows.affectedRows>0) {
 
@@ -226,7 +220,6 @@ exports.register = function(server, options, next){
 			path: '/add_product',
 			handler: function(request, reply){
 				var product = request.payload.product;
-				console.log("product:"+product);
 				product = JSON.parse(product);
 				var industry_id = product.industry_id;
 				server.plugins['models'].products.save_product_complex(product,function(err,result){
@@ -271,7 +264,6 @@ exports.register = function(server, options, next){
 
 					server.plugins['models'].products.search_product_code(invent.product_id,function(err,rows){
 						if (!err) {
-							console.log("rows:"+JSON.stringify(rows));
 							if (rows.length>0) {
 								var product_id = rows[0].id;
 								var industry_id;
@@ -282,7 +274,6 @@ exports.register = function(server, options, next){
 									"region_id" : 1
 								}
 								if (invent.size_name) {
-									console.log("size_name:"+JSON.stringify(invent.size_name));
 									industry_id = 101;
 									instruction.size_name = invent.size_name;
 								}else {
@@ -342,10 +333,8 @@ exports.register = function(server, options, next){
 
 					server.plugins['models'].products.search_product_code(product.product_id,function(err,rows){
 						if (!err) {
-							console.log("rows:"+JSON.stringify(rows));
 							if (rows.length>0) {
 								repeat_products.push(product);
-								console.log("repeat_products.length:"+repeat_products.length);
 								cb();
 							}else {
 								server.plugins['models'].products.save_product_complex(product,function(err,result){
@@ -395,7 +384,6 @@ exports.register = function(server, options, next){
 				}
 				product = JSON.stringify(product);
 				server.plugins['models'].products.save_product_simple(product,function(err,rows){
-					console.log("rows:"+JSON.stringify(rows));
 					if (rows.affectedRows>0) {
 						return reply({"success":true,"message":"ok","service_info":service_info,"product_id":rows.product_id});
 					}else {
@@ -480,7 +468,6 @@ exports.register = function(server, options, next){
 				if (!product_id || !industry_id) {
 					return reply({"success":false,"message":"参数错误","service_info":service_info});
 				}
-				console.log("industry_id: "+industry_id+" product_id:"+product_id);
 				get_product_industry(industry_id,product_id,function(err, row){
 					if (!err) {
 						return reply({"success":true,"message":"ok","row":row,"service_info":service_info});
@@ -584,7 +571,6 @@ exports.register = function(server, options, next){
 					return reply({"success":false,"message":"product_ids null","service_info":service_info});
 				}
 				product_ids = JSON.parse(product_ids);
-				console.log(product_ids);
 				find_products(product_ids, function(err, rows){
 					if (!err) {
 						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
@@ -604,7 +590,6 @@ exports.register = function(server, options, next){
 					return reply({"success":false,"message":"params wrong","service_info":service_info});
 				}
 				product_ids = JSON.parse(product_ids);
-				console.log(product_ids);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
@@ -644,7 +629,6 @@ exports.register = function(server, options, next){
 					return reply({"success":false,"message":"param wrong","service_info":service_info});
 				}
 				search_object = JSON.parse(search_object);
-				console.log("search_object:"+search_object);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
@@ -711,14 +695,11 @@ exports.register = function(server, options, next){
 				get_productById(product_id, function(err, product){
 					if (!err) {
 						if (!product) {
-							console.log("123");
 							return reply({"success":false,"message":"查不到商品明细！","message":"ok"});
 						}
 						var industry_id = product.industry_id;
 						var table_name = industries[industry_id]["table_name"];
-						console.log("table_name:"+table_name);
 						server.plugins.models[table_name].find_by_product_id(product_id, function(err,rows) {
-							console.log("err:"+err);
 							var properties = industries[industry_id]["properties"];
 
 							if (rows.length>0) {
