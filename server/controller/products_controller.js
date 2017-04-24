@@ -599,7 +599,11 @@ exports.register = function(server, options, next){
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
 							for (var j = 0; j < pictures.length; j++) {
-								if (products[i].id == pictures[j].product_id) {
+								if (pictures[j].location && products[i].id == pictures[j].product_id) {
+									var boolean = pictures[j].location.indexOf("http");
+									if (boolean==-1) {
+										pictures[j].location="images/"+pictures[j].location;
+									}
 									products[i].img = pictures[j];
 								}
 							}
