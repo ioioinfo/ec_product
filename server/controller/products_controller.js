@@ -647,7 +647,7 @@ exports.register = function(server, options, next){
 								}
 							}
 						}
-						var img = {location:"no_picture.png"};
+						var img = {location:"images/no_picture.png"};
 						for (var i = 0; i < products.length; i++) {
 							if (!products[i].img) {
 								products[i].img = img;
