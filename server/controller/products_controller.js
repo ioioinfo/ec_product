@@ -451,6 +451,11 @@ exports.register = function(server, options, next){
 				}
 				get_picturesById(product_id, function(err, rows){
 					if (!err) {
+						for (var i = 0; i < rows.length; i++) {
+							if (rows[i].location && rows[i].location.indexOf("http")==-1) {
+								rows[i].location = "images/"+rows[i].location;
+							}
+						}
 						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
 					}else {
 						return reply({"success":false,"message":rows,"service_info":service_info});
@@ -633,12 +638,16 @@ exports.register = function(server, options, next){
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
 							for (var j = 0; j < pictures.length; j++) {
-								if (products[i].id == pictures[j].product_id) {
+								if (pictures[j].location && products[i].id == pictures[j].product_id) {
+									var boolean = pictures[j].location.indexOf("http");
+									if (boolean==-1) {
+										pictures[j].location="images/"+pictures[j].location;
+									}
 									products[i].img = pictures[j];
 								}
 							}
 						}
-						var img = pictures[pictures.length-1];
+						var img = {location:"no_picture.png"};
 						for (var i = 0; i < products.length; i++) {
 							if (!products[i].img) {
 								products[i].img = img;
