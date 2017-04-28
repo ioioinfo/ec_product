@@ -615,7 +615,7 @@ exports.register = function(server, options, next){
 					if (!err) {
 						ep.emit("products",rows);
 					}else {
-						ep.emit("products",{});
+						ep.emit("products",[]);
 					}
 				});
 
@@ -623,7 +623,7 @@ exports.register = function(server, options, next){
 					if (!err) {
 						ep.emit("pictures",rows);
 					}else {
-						ep.emit("pictures",{});
+						ep.emit("pictures",[]);
 					}
 				});
 			}
