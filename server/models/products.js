@@ -39,10 +39,29 @@ var products = function(server) {
 
 		get_products_list : function(cb) {
 			var query = `select id,product_name,short_name,product_sale_price,industry_id
-				,color,code,color,product_marketing_price,product_brand,weight
+				,color,code,color,product_marketing_price,product_brand,weight,is_down,
+				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing
 				FROM products
 				where flag =0
 				limit 10
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+
+		//查询商品总数
+		get_products_count : function(cb) {
+			var query = `select count(1) num
+				FROM products
+				where flag =0
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, function(err, rows) {
@@ -156,11 +175,11 @@ var products = function(server) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
 				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight
 				FROM products a
-				where a.flag =0 and is_down = 1
+				where a.flag =0 and is_down = 0
 			`;
 			// sort_id
 			if (search_object.sort_id) {
-				query = query + " and a.sort_id ='" + search_object.sort_id+"'";
+				query = query + " and a.sort_id like '" + search_object.sort_id+"%' ";
 			}
 			//q product_name
 			if (search_object.q) {
@@ -175,7 +194,6 @@ var products = function(server) {
 			if (search_object.row_materials) {
 				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.row_materials = '" + search_object.row_materials + "')";
 			}
-			console.log("search_object.sort_ids:"+search_object.sort_ids);
 			if (search_object.sort_ids) {
 				// var sort_ids = JSON.parse(search_object.sort_ids);
 				// console.log("sort_ids:"+sort_ids);
@@ -202,8 +220,15 @@ var products = function(server) {
 					query = query + "a.id";
 				}
 			}
+			if (search_object.lastest) {
+				query = query + " order by create_at desc";
+			}
+			if (search_object.num) {
+				query = query + " limit "+search_object.num;
+			}else {
+				query = query + " limit 100 ";
+			}
 
-			query = query + " limit 100 ";
 
 			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {

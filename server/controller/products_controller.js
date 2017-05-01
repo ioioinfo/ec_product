@@ -107,10 +107,10 @@ exports.register = function(server, options, next){
 	//通过product_ids找到善淘信息
 	var find_shantao_infos = function(product_ids, cb){
 		server.plugins['models'].industry_santao.find_shantao_infos(product_ids, function(err,rows){
-			if (rows.length > 0) {
+			if (!err) {
 				cb(false,rows);
 			}else {
-				cb(true,"善淘属性null！");
+				cb(true,{message:"error"});
 			}
 		});
 	};
@@ -415,7 +415,18 @@ exports.register = function(server, options, next){
 			handler: function(request, reply){
 				server.plugins['models'].products.get_products_list(function(err,rows){
 					if (!err) {
-						return reply({"success":true,"message":"ok","products":rows,"service_info":service_info});
+						if (rows.length>0) {
+							server.plugins['models'].products.get_products_count(function(err,row){
+								if (!err) {
+									var num = row[0].num;
+									return reply({"success":true,"message":"ok","rows":rows,"num":num,"service_info":service_info});
+								}else {
+									return reply({"success":false,"message":results.message,"service_info":service_info});
+								}
+							});
+						}else {
+							reply({"success":true,"message":"ok","rows":rows,"num":0,"service_info":service_info});
+						}
 					}else {
 						return reply({"success":false,"message":results.message,"service_info":service_info});
 					}
