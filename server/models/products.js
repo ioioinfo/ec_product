@@ -37,14 +37,21 @@ var products = function(server) {
 			});
 		},
 
-		get_products_list : function(cb) {
+		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight,is_down,
 				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing
 				FROM products
 				where flag =0
-				limit 10
 			`;
+			if (params.thisPage) {
+				var offset = params.thisPage-1;
+				if (params.everyNum) {
+					query = query + " limit " + offset*params.everyNum + "," + params.everyNum;
+				}else {
+					query = query + " limit " + offset*20 + ",20";
+				}
+			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, function(err, rows) {
 					connection.release();

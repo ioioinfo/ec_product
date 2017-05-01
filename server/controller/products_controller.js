@@ -413,7 +413,12 @@ exports.register = function(server, options, next){
 			method: 'GET',
 			path: '/get_products_list',
 			handler: function(request, reply){
-				server.plugins['models'].products.get_products_list(function(err,rows){
+				var params = request.query.params;
+				if (!params) {
+					return reply({"success":false,"message":"params wrong","service_info":service_info});
+				}
+				params = JSON.parse(params);
+				server.plugins['models'].products.get_products_list(params,function(err,rows){
 					if (!err) {
 						if (rows.length>0) {
 							server.plugins['models'].products.get_products_count(function(err,row){
