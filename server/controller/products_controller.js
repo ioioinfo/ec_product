@@ -613,17 +613,18 @@ exports.register = function(server, options, next){
 				product_ids = JSON.parse(product_ids);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
-						for (var i = 0; i < products.length-1; i++) {
-							for (var j = 0; j < pictures.length-1; j++) {
-								if (pictures[j].location && products[i].id == pictures[j].product_id) {
-									console.log("123:"+pictures[j].location);
+						for (var i = 0; i < products.length; i++) {
+							var flag = 0;
+							for (var j = 0; j < pictures.length; j++) {
+								if (flag==0 && pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
-									console.log(boolean);
 									if (boolean==-1) {
 										pictures[j].location="images/"+pictures[j].location;
 									}
 									products[i].img = pictures[j];
+									flag = 1;
 								}
+
 							}
 						}
 					return reply({"success":true,"message":"ok","products":products});
@@ -658,8 +659,8 @@ exports.register = function(server, options, next){
 				search_object = JSON.parse(search_object);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
-						for (var i = 0; i < products.length-1; i++) {
-							for (var j = 0; j < pictures.length-1; j++) {
+						for (var i = 0; i < products.length; i++) {
+							for (var j = 0; j < pictures.length; j++) {
 								if (pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
 									if (boolean==-1) {
@@ -670,7 +671,7 @@ exports.register = function(server, options, next){
 							}
 						}
 						var img = {location:"images/no_picture.png"};
-						for (var i = 0; i < products.length-1; i++) {
+						for (var i = 0; i < products.length; i++) {
 							if (!products[i].img) {
 								products[i].img = img;
 							}
@@ -707,8 +708,8 @@ exports.register = function(server, options, next){
 				search_object = JSON.parse(search_object);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
-						for (var i = 0; i < products.length-1; i++) {
-							for (var j = 0; j < pictures.length-1; j++) {
+						for (var i = 0; i < products.length; i++) {
+							for (var j = 0; j < pictures.length; j++) {
 								if (pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
 									if (boolean==-1) {
@@ -719,7 +720,7 @@ exports.register = function(server, options, next){
 							}
 						}
 						var img = {location:"images/no_picture.png"};
-						for (var i = 0; i < products.length-1; i++) {
+						for (var i = 0; i < products.length; i++) {
 							if (!products[i].img) {
 								products[i].img = img;
 							}
