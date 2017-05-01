@@ -233,7 +233,7 @@ var products = function(server) {
 			if (search_object.num) {
 				query = query + " limit "+search_object.num;
 			}else {
-				query = query + " limit 100 ";
+				query = query + " limit 50 ";
 			}
 
 
