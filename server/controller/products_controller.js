@@ -639,6 +639,55 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//查询最新商品
+		{
+			method: 'POST',
+			path: '/find_lastest_products',
+			handler: function(request, reply){
+				var search_object = request.payload.search_object;
+				if (!search_object) {
+					return reply({"success":false,"message":"param wrong","service_info":service_info});
+				}
+				search_object = JSON.parse(search_object);
+				var ep =  eventproxy.create("products","pictures",
+					function(products,pictures){
+						for (var i = 0; i < products.length; i++) {
+							for (var j = 0; j < pictures.length; j++) {
+								if (pictures[j].location && products[i].id == pictures[j].product_id) {
+									var boolean = pictures[j].location.indexOf("http");
+									if (boolean==-1) {
+										pictures[j].location="images/"+pictures[j].location;
+									}
+									products[i].img = pictures[j];
+								}
+							}
+						}
+						var img = {location:"images/no_picture.png"};
+						for (var i = 0; i < products.length; i++) {
+							if (!products[i].img) {
+								products[i].img = img;
+							}
+						}
+					return reply({"success":true,"rows":products});
+				});
+
+				search_products(search_object,function(err, rows) {
+					if (!err) {
+						ep.emit("products",rows);
+					}else {
+						ep.emit("products",{});
+					}
+				});
+
+				search_pictures(function(err, rows){
+					if (!err) {
+						ep.emit("pictures",rows);
+					}else {
+						ep.emit("pictures",{});
+					}
+				});
+			}
+		},
 		//查询所有商品及图片
 		{
 			method: 'POST',
