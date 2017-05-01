@@ -648,10 +648,10 @@ exports.register = function(server, options, next){
 		},
 		//查询最新商品
 		{
-			method: 'POST',
+			method: 'GET',
 			path: '/find_lastest_products',
 			handler: function(request, reply){
-				var search_object = request.payload.search_object;
+				var search_object = request.query.search_object;
 				if (!search_object) {
 					return reply({"success":false,"message":"param wrong","service_info":service_info});
 				}
