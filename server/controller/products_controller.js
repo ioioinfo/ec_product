@@ -616,7 +616,7 @@ exports.register = function(server, options, next){
 						for (var i = 0; i < products.length; i++) {
 							var flag = 0;
 							for (var j = 0; j < pictures.length; j++) {
-								if (flag==0 && pictures[j].location && products[i].id == pictures[j].product_id) {
+								if (flag == 0 && pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
 									if (boolean==-1) {
 										pictures[j].location="images/"+pictures[j].location;
@@ -660,13 +660,15 @@ exports.register = function(server, options, next){
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
+							var flag = 0;
 							for (var j = 0; j < pictures.length; j++) {
-								if (pictures[j].location && products[i].id == pictures[j].product_id) {
+								if (flag == 0 && pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
 									if (boolean==-1) {
 										pictures[j].location="images/"+pictures[j].location;
 									}
 									products[i].img = pictures[j];
+									flag = 1;
 								}
 							}
 						}
@@ -709,13 +711,15 @@ exports.register = function(server, options, next){
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {
+							var flag = 0;
 							for (var j = 0; j < pictures.length; j++) {
-								if (pictures[j].location && products[i].id == pictures[j].product_id) {
+								if (flag ==0 && pictures[j].location && products[i].id == pictures[j].product_id) {
 									var boolean = pictures[j].location.indexOf("http");
 									if (boolean==-1) {
 										pictures[j].location="images/"+pictures[j].location;
 									}
 									products[i].img = pictures[j];
+									flag =1;
 								}
 							}
 						}

@@ -64,8 +64,7 @@ var products_pictures = function(server) {
 		//根据id找到商品图片
 		find_pictures : function(product_ids, callback) {
 			var query = `select a.location,a.product_id  from products_pictures a
-				where a.product_id in (?) and a.flag =0
-				and a.order_index = 1` ;
+				where a.product_id in (?) and a.flag =0` ;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [product_ids], function(err, results) {
