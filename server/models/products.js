@@ -4,6 +4,22 @@ const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
+		//更新商品分类 高手模式
+		update_sort_id : function(sort_id,id, cb) {
+			var query = `update products set sort_id = ?
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [sort_id,id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 		//单条商品上架
 		product_up : function(id, cb) {
 			var query = `update products set is_down = 1

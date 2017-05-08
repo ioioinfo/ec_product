@@ -150,12 +150,34 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//商品分类，高手模式
+		{
+			method: 'POST',
+			path: '/update_sort_id',
+			handler: function(request, reply){
+				var id = request.payload.product_id;
+				var sort_id = request.payload.sort_id;
+				if (!id || !sort_id) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				server.plugins['models'].products.update_sort_id(sort_id,id,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//商品下架
 		{
 			method: 'POST',
 			path: '/product_down',
 			handler: function(request, reply){
 				var id = request.payload.product_id;
+				if (!id) {
+					return reply({"success":false,"message":"params wrong"});
+				}
 				server.plugins['models'].products.product_down(id,function(err,rows){
 					if (rows.affectedRows>0) {
 						return reply({"success":true,"message":"ok","service_info":service_info});
@@ -171,6 +193,9 @@ exports.register = function(server, options, next){
 			path: '/product_up',
 			handler: function(request, reply){
 				var id = request.payload.product_id;
+				if (!id) {
+					return reply({"success":false,"message":"params wrong"});
+				}
 				server.plugins['models'].products.product_up(id,function(err,rows){
 					if (rows.affectedRows>0) {
 						return reply({"success":true,"message":"ok","service_info":service_info});

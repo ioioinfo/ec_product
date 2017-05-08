@@ -69,6 +69,9 @@ server.register([
 	{
 	  register: require('./server/controller/products_controller.js')
 	},
+    {
+      register: require('./server/controller/sorts_controller.js')
+    },
 
 
 ], function () {
