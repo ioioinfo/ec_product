@@ -194,6 +194,25 @@ var products = function(server) {
 				});
 			});
 		},
+		search_pos_product : function(product_name, cb) {
+			var query = `select a.id,a.product_name, a.product_sale_price, a.product_brand,
+				a.industry_id, a.color
+				from products a
+				where a.product_name like ? and flag =0
+			`;
+			product_name = "%"+product_name+"%";
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [product_name], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+
 		search_products : function(search_object,cb) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
 				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight

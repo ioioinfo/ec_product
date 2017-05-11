@@ -579,6 +579,24 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//根据名字找到商品
+		{
+			method: 'GET',
+			path: '/search_pos_product',
+			handler: function(request, reply){
+				var product_name = request.query.product_name;
+				if (!product_name) {
+					return reply({"success":false,"message":"param null","service_info":service_info});
+				}
+				server.plugins['models'].products.search_pos_product(product_name, function(err, rows){
+					if (!err) {
+						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//根据id找到pos商品
 		{
 			method: 'GET',
