@@ -60,6 +60,15 @@ var products = function(server) {
 				FROM products
 				where flag =0
 			`;
+			var colums=[];
+			if (params.product_name) {
+				query = query + " and product_name like ? ";
+				colums.push('%'+params.product_name+'%');
+			}
+			if (params.product_id) {
+				query = query + " and id = ? ";
+				colums.push(params.product_id);
+			}
 			if (params.thisPage) {
 				var offset = params.thisPage-1;
 				if (params.everyNum) {
@@ -68,8 +77,9 @@ var products = function(server) {
 					query = query + " limit " + offset*20 + ",20";
 				}
 			}
+			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-				connection.query(query, function(err, rows) {
+				connection.query(query,colums, function(err, rows) {
 					connection.release();
 					if (err) {
 						cb(true,null);
@@ -81,13 +91,22 @@ var products = function(server) {
 		},
 
 		//查询商品总数
-		get_products_count : function(cb) {
+		get_products_count : function(params,cb) {
 			var query = `select count(1) num
 				FROM products
 				where flag =0
 			`;
+			var colums=[];
+			if (params.product_name) {
+				query = query + " and product_name like ? ";
+				colums.push('%'+params.product_name+'%');
+			}
+			if (params.product_id) {
+				query = query + " and id = ? ";
+				colums.push(params.product_id);
+			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-				connection.query(query, function(err, rows) {
+				connection.query(query,colums, function(err, rows) {
 					connection.release();
 					if (err) {
 						cb(true,null);

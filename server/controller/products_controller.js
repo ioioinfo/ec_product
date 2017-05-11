@@ -446,7 +446,7 @@ exports.register = function(server, options, next){
 				server.plugins['models'].products.get_products_list(params,function(err,rows){
 					if (!err) {
 						if (rows.length>0) {
-							server.plugins['models'].products.get_products_count(function(err,row){
+							server.plugins['models'].products.get_products_count(params,function(err,row){
 								if (!err) {
 									var num = row[0].num;
 									return reply({"success":true,"message":"ok","rows":rows,"num":num,"service_info":service_info});
@@ -458,7 +458,7 @@ exports.register = function(server, options, next){
 							reply({"success":true,"message":"ok","rows":rows,"num":0,"service_info":service_info});
 						}
 					}else {
-						return reply({"success":false,"message":results.message,"service_info":service_info});
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
 				});
 			}
