@@ -22,7 +22,7 @@ var products = function(server) {
 		},
 		//单条商品上架
 		product_up : function(id, cb) {
-			var query = `update products set is_down = 1
+			var query = `update products set is_down = 0
 			where id = ? and flag = 0
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
@@ -38,7 +38,7 @@ var products = function(server) {
 		},
 		//单条商品下架
 		product_down : function(id, cb) {
-			var query = `update products set is_down = 0
+			var query = `update products set is_down = 1
 			where id = ? and flag = 0
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
