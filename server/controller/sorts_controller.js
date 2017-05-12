@@ -58,7 +58,24 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
-
+		//查询分类
+		{
+			method: 'GET',
+			path: '/search_sort',
+			handler: function(request, reply){
+				var id = request.query.id;
+				if (!id ) {
+					return reply({"success":false,"message":"id is null","service_info":service_info});
+				}
+				server.plugins['models'].products_sorts.search_sort(id,function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 
 	]);
 
