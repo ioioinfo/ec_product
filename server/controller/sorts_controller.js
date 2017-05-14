@@ -40,6 +40,7 @@ var do_result = function(err,result,cb){
 exports.register = function(server, options, next){
 	var service_info = "ec sort service";
 	server.route([
+
 		//一级分类
 		{
 			method: 'GET',
