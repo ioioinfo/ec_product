@@ -750,7 +750,6 @@ exports.register = function(server, options, next){
 				if (!search_object) {
 					return reply({"success":false,"message":"param wrong","service_info":service_info});
 				}
-				search_object = JSON.parse(search_object);
 				var ep =  eventproxy.create("products","pictures",
 					function(products,pictures){
 						for (var i = 0; i < products.length; i++) {

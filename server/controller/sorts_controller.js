@@ -77,6 +77,59 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//查询分类
+		{
+			method: 'GET',
+			path: '/search_sorts',
+			handler: function(request, reply){
+				var sort_ids = request.query.sort_ids;
+				if (!sort_ids) {
+					return reply({"success":false,"message":"参数错误","service_info":service_info});
+				}
+				sort_ids = JSON.parse(sort_ids);
+				if (!sort_ids) {
+					return reply({"success":false,"message":"sort_ids is null","service_info":service_info});
+				}
+				server.plugins['models'].products_sorts.search_sorts(sort_ids,function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//查询商品分类
+		{
+			method: 'GET',
+			path: '/search_product_sort',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				if (!product_id ) {
+					return reply({"success":false,"message":"product_id is null","service_info":service_info});
+				}
+				server.plugins['models'].products.search_product_sort(product_id,function(err,rows){
+					if (!err) {
+						if (rows.length == 0) {
+							reply({"success":false,"message":"product_id is null","service_info":service_info});
+						}else {
+							var id = rows[0].sort_id;
+							server.plugins['models'].products_sorts.search_sort(id,function(err,rows){
+								if (!err) {
+									return reply({"success":true,"rows":rows,"service_info":service_info});
+								}else {
+									return reply({"success":false,"message":"wrong","service_info":service_info});
+								}
+							});
+						}
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+
+
 
 	]);
 

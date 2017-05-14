@@ -54,7 +54,7 @@ var products = function(server) {
 		},
 
 		get_products_list : function(params,cb) {
-			var query = `select id,product_name,short_name,product_sale_price,industry_id
+			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight,is_down,
 				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing
 				FROM products
@@ -264,18 +264,7 @@ var products = function(server) {
 				query = query + " and exists (select 1 from industry_santao b where a.id = b.product_id and b.row_materials = '" + search_object.row_materials + "')";
 			}
 			if (search_object.sort_ids) {
-				// var sort_ids = JSON.parse(search_object.sort_ids);
-				// console.log("sort_ids:"+sort_ids);
 				query = query + " and a.sort_id in " + search_object.sort_ids;
-				// for (var i = 0; i < sort_ids.length; i++) {
-				// 	query = query + " and a.sort_id ='" + sort_ids[i] +"'";
-				// 	// console.log("sort_id:"+sort_id);
-				// 	// if (i = 0) {
-				// 	// 	query = query + " and a.sort_id ='" + sort_ids[0] +"'";
-				// 	// }else {
-				// 	// 	query = query + " or a.sort_id ='" + sort_ids[i] +"'";
-				// 	// }
-				// }
 			}
 
 			//排序
@@ -417,8 +406,23 @@ var products = function(server) {
 					cb(false,rows);
 				});
 			});
+		},
+		//查询商品分类
+		search_product_sort: function(id, cb) {
+			var query = `select sort_id FROM products
+				where id =? and flag =0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
 		}
-
 
 
 	};
