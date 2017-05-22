@@ -422,6 +422,22 @@ var products = function(server) {
 					cb(false,rows);
 				});
 			});
+		},
+		//查询商品分类
+		get_products_sort: function(cb) {
+			var query = `select sort_id FROM products
+				where flag =0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
 		}
 
 

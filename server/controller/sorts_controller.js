@@ -40,7 +40,58 @@ var do_result = function(err,result,cb){
 exports.register = function(server, options, next){
 	var service_info = "ec sort service";
 	server.route([
-
+		//得到产品分类
+		{
+			method: 'GET',
+			path: '/get_products_sort',
+			handler: function(request, reply){
+				server.plugins['models'].products.get_products_sort(function(err,rows){
+					if (!err) {
+						var sort_list = [];
+						var sort_map = {};
+						for (var i = 0; i < rows.length; i++) {
+							if (rows[i].sort_id && rows[i].sort_id !="") {
+								if (!sort_map[rows[i].sort_id]) {
+									sort_map[rows[i].sort_id] = rows[i].sort_id;
+									sort_list.push(rows[i].sort_id);
+								}
+							}
+						}
+						var sort_map_two = {};
+						for (var i = 0; i < sort_list.length; i++) {
+							var sort = sort_list[i].substring(0,6)+"000";
+							if (!sort_map_two[sort]) {
+								sort_map_two[sort] = sort;
+								sort_list.push(sort);
+							}
+						}
+						var sort_map_one = {};
+						for (var i = 0; i < sort_list.length; i++) {
+							var sort = sort_list[i].substring(0,3)+"000000";
+							if (!sort_map_one[sort]) {
+								sort_map_one[sort] = sort;
+								sort_list.push(sort);
+							}
+						}
+						server.plugins['models'].products_sorts.update_sort_id(sort_list,function(err,rows){
+							if (!err) {
+								server.plugins['models'].products_sorts.update_sort_id2(sort_list,function(err,rows){
+									if (!err) {
+										return reply({"success":true,"service_info":service_info});
+									}else {
+										return reply({"success":false,"message":rows.message,"service_info":service_info});
+									}
+								});
+							}else {
+								return reply({"success":false,"message":rows.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//一级分类
 		{
 			method: 'GET',
