@@ -773,7 +773,7 @@ exports.register = function(server, options, next){
 						}
 					return reply({"success":true,"products":products});
 				});
-
+				search_object = JSON.parse(search_object);
 				search_products(search_object,function(err, rows) {
 					if (!err) {
 						ep.emit("products",rows);
