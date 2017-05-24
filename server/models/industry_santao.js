@@ -41,6 +41,12 @@ var industry_santao = function(server) {
 		//保存行业信息
 		save_santao_industy : function(santao,cb){
 			var santao = JSON.parse(santao);
+			if (!santao.size_name) {
+				santao.size_name = "";
+			}
+			if (!santao.batch_code) {
+				santao.batch_code = "";
+			}
 			var query = `insert into industry_santao (product_id, is_new, row_materials,
 				size_name, batch_code, created_at, updated_at, flag)
 				values

@@ -292,12 +292,6 @@ exports.register = function(server, options, next){
 							if (rows.length>0) {
 								var product_id = rows[0].id;
 								var industry_id;
-								var instruction = {
-									"shipper" : "shantao",
-									"supplier_id" : 1,
-									"warehouse_id" : 1,
-									"region_id" : 1
-								}
 								if (invent.size_name) {
 									industry_id = 101;
 									instruction.size_name = invent.size_name;
@@ -309,7 +303,8 @@ exports.register = function(server, options, next){
 									"supplier_id" : 1,
 									"warehouse_id" : 1,
 									"region_id" : 1,
-									"size_name" : invent.size_name
+									"size_name" : invent.size_name,
+									"point_id" : 1
 								}
 								var data = {
 									"product_id" : product_id,
@@ -319,11 +314,14 @@ exports.register = function(server, options, next){
 									"quantity" : invent.quantity,
 									"batch_id" : "test"
 								};
+								console.log("address:"+invent.address);
+								console.log("address:"+invent.stock_location);
 								save_stock_instruction(data,function(err,content){
 									if (!err) {
 										save_success.push(invent);
 										cb();
 									}else {
+										console.log(content.message);
 										save_fail.push(invent);
 										cb();
 									}
@@ -369,10 +367,10 @@ exports.register = function(server, options, next){
 										var product_id = result.product_id;
 										var santao = {
 											"product_id" : product_id,
-											"is_new" : request.payload.is_new,
-											"row_materials" : request.payload.row_materials,
-											"batch_code" : request.payload.batch_code,
-											"size_name" : request.payload.size_name
+											"is_new" : product.is_new,
+											"row_materials" : product.row_materials,
+											"batch_code" : product.batch_code,
+											"size_name" : product.size_name
 										};
 										santao = JSON.stringify(santao);
 										//暂时写死

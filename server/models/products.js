@@ -372,7 +372,7 @@ var products = function(server) {
 				?,?,?,?,?,
 				?,?,?,
 				now(),now(),0)` ;
-			var id = uuidV1();
+			var id = product.product_id;
 			var columns=[id,product.product_name,
 				product.product_sale_price,product.product_marketing_price, product.product_id,product.industry_id,
 				product.sort_id, product.product_brand, product.product_describe,product.time_to_market, product.color,
