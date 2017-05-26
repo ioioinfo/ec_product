@@ -312,7 +312,8 @@ exports.register = function(server, options, next){
 									"instruction" : JSON.stringify(instruction),
 									"strategy" : "modify",
 									"quantity" : invent.quantity,
-									"batch_id" : "test"
+									"batch_id" : "test",
+									"platform_code" :"drp_admin"
 								};
 								console.log("address:"+invent.address);
 								console.log("address:"+invent.stock_location);
