@@ -55,7 +55,7 @@ var products = function(server) {
 
 		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
-				,color,code,color,product_marketing_price,product_brand,weight,is_down,
+				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,
 				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing
 				FROM products
 				where flag =0
@@ -81,7 +81,6 @@ var products = function(server) {
 					query = query + " limit " + offset*20 + ",20";
 				}
 			}
-			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query,colums, function(err, rows) {
 					connection.release();
@@ -188,7 +187,7 @@ var products = function(server) {
 
 		find_products : function(product_ids, cb) {
 			var query = `select id,product_name,short_name,product_sale_price,industry_id
-				,color,code,color,product_marketing_price,product_brand,weight
+				,color,code,color,product_marketing_price,product_brand,weight,origin
 				FROM products
 				where id in (?) and flag =0
 			`;
@@ -242,7 +241,7 @@ var products = function(server) {
 
 		search_products : function(search_object,cb) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
-				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight
+				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight,a.origin
 				FROM products a
 				where a.flag =0 and is_down = 0
 			`;
@@ -363,20 +362,20 @@ var products = function(server) {
 			var query = `insert into products (id, product_name,
 				product_sale_price, product_marketing_price, code, industry_id,
 				sort_id, product_brand, time_to_market, color,
-				weight, guarantee,barcode,
+				weight, guarantee, barcode, origin,
 				create_at, update_at, flag)
 				values
 				(?,?,
 				?,?,?,?,
 				?,?,?,?,
-				?,?,?,
+				?,?,?,?,
 				now(),now(),0)` ;
 			var id = product.product_id;
 			var columns=[id, product.product_name,
 				product.product_sale_price, product.product_marketing_price,
 				product.product_id, product.industry_id,
 				product.sort_id, product.product_brand, product.time_to_market, product.color,
-				product.weight, product.guarantee, product.barcode
+				product.weight, product.guarantee, product.barcode,product.origin
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
