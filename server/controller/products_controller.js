@@ -84,16 +84,6 @@ exports.register = function(server, options, next){
 			}
 		});
 	};
-	//通过id找到产品详情
-	var get_product_details = function(product_id, cb){
-		server.plugins['models'].products_details.find_product_detail(product_id, function(rows){
-			if (rows.length > 0) {
-				cb(false,rows);
-			}else {
-				cb(true,"商品小图片不存在！");
-			}
-		});
-	};
 	//通过product_ids找到商品信息
 	var find_products = function(product_ids, cb){
 		server.plugins['models'].products.find_products(product_ids, function(err,rows){
@@ -246,6 +236,7 @@ exports.register = function(server, options, next){
 			handler: function(request, reply){
 				var product = request.payload.product;
 				product = JSON.parse(product);
+				var product_description = product.product_describe;
 				var industry_id = product.industry_id;
 				server.plugins['models'].products.save_product_complex(product,function(err,result){
 					if (result.affectedRows>0) {
@@ -354,7 +345,7 @@ exports.register = function(server, options, next){
 				console.log("async begin--------");
 				async.each(products, function(product, cb) {
 					var industry_id = product.industry_id;
-
+					var description = product.product_describe;
 					server.plugins['models'].products.search_product_code(product.product_id,function(err,rows){
 						if (!err) {
 							if (rows.length>0) {
@@ -376,7 +367,14 @@ exports.register = function(server, options, next){
 										santao = JSON.stringify(santao);
 										//暂时写死
 										server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
-											cb();
+											server.plugins['models'].products_descriptions.save_descriptions(product_id,description,function(err,rows){
+												if (rows.affectedRows>0) {
+													cb();
+												}else {
+													save_fail.push(product);
+													cb();
+												}
+											});
 										});
 									}else {
 										save_fail.push(product);
@@ -416,7 +414,41 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
-
+		//保存商品描述
+		{
+			method: 'POST',
+			path: '/save_descriptions',
+			handler: function(request, reply){
+				var product_id = request.payload.product_id;
+				var description = request.payload.description;
+				server.plugins['models'].products_descriptions.save_descriptions(product_id,description,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//查询产品描述
+		{
+			method: 'GET',
+			path: '/search_descriptions',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				server.plugins['models'].products_descriptions.get_product_description(product_id,function(err,rows){
+					if (!err) {
+						if (rows.length>0) {
+							return reply({"success":true,"row":rows,"service_info":service_info});
+						}else {
+							return reply({"success":true,"row":[],"service_info":service_info});
+						}
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//保存商品
 		{
 			method: 'POST',
@@ -569,11 +601,15 @@ exports.register = function(server, options, next){
 				if (!product_id) {
 					return reply({"success":false,"message":"参数错误","service_info":service_info});
 				}
-				get_product_details(product_id, function(err, rows){
+				server.plugins['models'].products_descriptions.get_product_description(product_id,function(err,rows){
 					if (!err) {
-						return reply({"success":true,"message":"ok","rows":rows,"service_info":service_info});
+						if (rows.length>0) {
+							return reply({"success":true,"row":rows,"service_info":service_info});
+						}else {
+							return reply({"success":true,"row":[],"service_info":service_info});
+						}
 					}else {
-						return reply({"success":false,"message":rows,"service_info":service_info});
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
 				});
 			}

@@ -128,7 +128,7 @@ var products = function(server) {
 		find_by_industry : function(industry_id, callback) {
 			var query = `select id, product_name, product_sale_price,
 			product_marketing_price, product_brand, sale_id,  after_sale_id, same_code,
-			sku_id, product_describe, industry_id, time_to_market,
+			sku_id, industry_id, time_to_market,
 			code, color, report_id, service_id, pay_way, product_suggestion,
 			send_way, weight, delivery_area, is_sale, is_presale, is_preorder,
 			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
@@ -150,7 +150,7 @@ var products = function(server) {
 		find_by_id : function(id, cb) {
 			var query = `select id, product_name, product_sale_price,
 			product_marketing_price, product_brand,sale_id,  after_sale_id, same_code,
-			sku_id, product_describe, industry_id, time_to_market,
+			sku_id, industry_id, time_to_market,
 			code, color, report_id, service_id, pay_way, product_suggestion,
 			send_way, weight, delivery_area, is_sale, is_presale, is_preorder,
 			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
@@ -306,18 +306,17 @@ var products = function(server) {
 			var product = JSON.parse(product);
 			var query = `insert into products (id, product_name, sort_id,
 			product_sale_price, product_marketing_price, product_brand,
-			product_describe, time_to_market, color, weight, guarantee,code,
+			time_to_market, color, weight, guarantee, code,
 			create_at, update_at, flag)
 			values
-			(uuid(),?,?,
+			(?,?,?,
 		 	?,?,?,
 			?,?,?,?,?,
 			now(),now(),0)` ;
 			console.log(query);
-			var columns=[product.product_name,product.sort_id,
-				product.product_sale_price,product.product_marketing_price,
-				product.product_brand,product.product_describe,product.time_to_market,
-				product.color,product.weight,product.guarantee,product.id
+			var columns=[product.id, product.product_name, product.sort_id,
+				product.product_sale_price, product.product_marketing_price, product.product_brand,
+				product.time_to_market, product.color, product.weight, product.guarantee, product.id
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
@@ -363,20 +362,21 @@ var products = function(server) {
 		save_product_complex : function(product,cb){
 			var query = `insert into products (id, product_name,
 				product_sale_price, product_marketing_price, code, industry_id,
-				sort_id, product_brand, product_describe, time_to_market, color,
+				sort_id, product_brand, time_to_market, color,
 				weight, guarantee,barcode,
 				create_at, update_at, flag)
 				values
 				(?,?,
 				?,?,?,?,
-				?,?,?,?,?,
+				?,?,?,?,
 				?,?,?,
 				now(),now(),0)` ;
 			var id = product.product_id;
-			var columns=[id,product.product_name,
-				product.product_sale_price,product.product_marketing_price, product.product_id,product.industry_id,
-				product.sort_id, product.product_brand, product.product_describe,product.time_to_market, product.color,
-				product.weight,product.guarantee, product.barcode
+			var columns=[id, product.product_name,
+				product.product_sale_price, product.product_marketing_price,
+				product.product_id, product.industry_id,
+				product.sort_id, product.product_brand, product.time_to_market, product.color,
+				product.weight, product.guarantee, product.barcode
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
