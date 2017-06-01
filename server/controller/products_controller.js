@@ -140,6 +140,43 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//更新sort_id
+		{
+			method: 'GET',
+			path: '/sort_change',
+			handler: function(request, reply){
+				server.plugins['models'].products.find_sort_id(function(err,rows){
+					if (!err) {
+						var fail_list = [];
+						var num =0;
+						for (var i = 0; i < rows.length; i++) {
+							var sort_id = rows[i].sort_id;
+							if (parseInt(sort_id/100000000) >0) {
+							}else {
+								if (parseInt(sort_id/10000000) >0) {
+									rows[i].sort_id = "0"+ sort_id;
+								}else if (parseInt(sort_id/1000000) >0) {
+									rows[i].sort_id = "00"+ sort_id;
+								}
+								server.plugins['models'].products.update_sort_id(rows[i].sort_id,rows[i].id,function(err,rows){
+									if (rows.affectedRows>0) {
+
+									}else {
+										var fail_product = {};
+										fail_product[rows[i].id]=rows[i];
+										fail_list.push(fail_product);
+									}
+								});
+							}
+						}
+
+						return reply({"success":true,"fail_list":fail_list,"fail_num":fail_list.length,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//商品分类，高手模式
 		{
 			method: 'POST',

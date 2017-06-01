@@ -4,6 +4,23 @@ const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
+		//查询产品分类不为null的
+		find_sort_id : function(cb) {
+			var query = `select id, sort_id
+			FROM products where sort_id is not null and flag =0`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,null);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
 		//更新商品分类 高手模式
 		update_sort_id : function(sort_id,id, cb) {
 			var query = `update products set sort_id = ?
@@ -189,7 +206,7 @@ var products = function(server) {
 
 		find_products : function(product_ids, cb) {
 			var query = `select id,product_name,short_name,product_sale_price,industry_id
-				,color,code,color,product_marketing_price,product_brand,weight,origin
+				,color,code,color,product_marketing_price,product_brand,weight,origin,is_sale
 				FROM products
 				where id in (?) and flag =0
 			`;
