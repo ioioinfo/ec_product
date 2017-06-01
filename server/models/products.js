@@ -22,7 +22,7 @@ var products = function(server) {
 		},
 		//单条商品上架
 		product_up : function(id, cb) {
-			var query = `update products set is_down = 0
+			var query = `update products set is_down = 0, update_at = now()
 			where id = ? and flag = 0
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
@@ -38,7 +38,7 @@ var products = function(server) {
 		},
 		//单条商品下架
 		product_down : function(id, cb) {
-			var query = `update products set is_down = 1
+			var query = `update products set is_down = 1, update_at = now()
 			where id = ? and flag = 0
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
@@ -56,7 +56,8 @@ var products = function(server) {
 		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,
-				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing
+				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing,
+				DATE_FORMAT(update_at,'%Y-%m-%d %H:%i:%S') update_at_text
 				FROM products
 				where flag =0
 			`;
@@ -155,7 +156,8 @@ var products = function(server) {
 			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
 			is_group_product, is_replace_product, is_crazy_product,
 			is_point_product, is_net_point,is_free_product, is_low_price_product,
-			origin, module_number FROM products where id =? and flag =0`;
+			origin, module_number, DATE_FORMAT(update_at,'%Y-%m-%d %H:%i:%S') update_at_text
+			FROM products where id =? and flag =0`;
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [id], function(err, results) {
@@ -286,8 +288,6 @@ var products = function(server) {
 				query = query + " limit 100 ";
 			}
 
-
-			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 
 				connection.query(query, function(err, rows) {
@@ -312,7 +312,6 @@ var products = function(server) {
 		 	?,?,?,
 			?,?,?,?,?,
 			now(),now(),0)` ;
-			console.log(query);
 			var columns=[product.id, product.product_name, product.sort_id,
 				product.product_sale_price, product.product_marketing_price, product.product_brand,
 				product.time_to_market, product.color, product.weight, product.guarantee, product.id
@@ -339,7 +338,6 @@ var products = function(server) {
 				(?,?,
 			 	?,?,?,
 				?,now(),now(),0)` ;
-				console.log(query);
 			var id = uuidV1();
 			var columns=[id,product.product_name,product.product_sale_price,
 				product.product_sale_price, product.product_id,product.industry_id
