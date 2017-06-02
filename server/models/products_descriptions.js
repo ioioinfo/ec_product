@@ -23,6 +23,7 @@ var products_descriptions = function(server) {
 				});
 			});
 		},
+		//查询描述
 		get_product_description : function(product_id,cb) {
 			var query = `select product_id,description,created_at,updated_at
 				FROM products_descriptions
@@ -30,6 +31,22 @@ var products_descriptions = function(server) {
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query,product_id, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+		//修改描述
+		update_product_description: function(product_id,description,cb) {
+			var query = `update products_descriptions set description = ?, updated_at = now() where product_id = ? and flag = 0;
+			`;
+			var columns=[description,product_id];
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, columns, function(err, rows) {
 					connection.release();
 					if (err) {
 						cb(true,null);

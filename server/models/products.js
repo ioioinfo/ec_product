@@ -300,6 +300,10 @@ var products = function(server) {
 					query = query + "a.id";
 				}
 			}
+			//价格区间
+			if (search_object.price1 && search_object.price2) {
+				query = query + " and a.product_sale_price between " + search_object.price1 +" and " + search_object.price2;
+			}
 			if (search_object.lastest) {
 				query = query + " order by update_at desc";
 			}

@@ -140,6 +140,25 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//更新描述
+		{
+			method: 'POST',
+			path: '/update_product_description',
+			handler: function(request, reply){
+				var product_id = request.payload.product_id;
+				var description = request.payload.description;
+				if (!product_id || !description) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				server.plugins['models'].products_descriptions.update_product_description(product_id,description,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//更新sort_id
 		{
 			method: 'GET',
