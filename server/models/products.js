@@ -301,7 +301,7 @@ var products = function(server) {
 				}
 			}
 			if (search_object.lastest) {
-				query = query + " order by create_at desc";
+				query = query + " order by update_at desc";
 			}
 			if (search_object.num) {
 				query = query + " limit "+search_object.num;
