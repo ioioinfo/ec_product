@@ -284,7 +284,13 @@ var products = function(server) {
 			if (search_object.sort_ids) {
 				query = query + " and a.sort_id in " + search_object.sort_ids;
 			}
-
+			//价格区间
+			if (search_object.price1) {
+				query = query + " and a.product_sale_price > " + search_object.price1;
+			}
+			if (search_object.price2) {
+				query = query + " and a.product_sale_price < " + search_object.price2;
+			}
 			//排序
 			if (search_object.sort) {
 				query = query + " order by ";
@@ -299,10 +305,6 @@ var products = function(server) {
 				}else {
 					query = query + "a.id";
 				}
-			}
-			//价格区间
-			if (search_object.price1 && search_object.price2) {
-				query = query + " and a.product_sale_price between " + search_object.price1 +" and " + search_object.price2;
 			}
 			if (search_object.lastest) {
 				query = query + " order by update_at desc";
