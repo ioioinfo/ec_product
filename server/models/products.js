@@ -292,7 +292,11 @@ var products = function(server) {
 					query = query + "a.product_sale_price asc";
 				} else if (search_object.sort=="price_desc") {
 					query = query + "a.product_sale_price desc";
-				} else {
+				} else if (search_object.sort=="time_desc") {
+					query = query + "a.update_at desc";
+				}else if (search_object.sort=="time_asc") {
+					query = query + "a.update_at asc";
+				}else {
 					query = query + "a.id";
 				}
 			}
