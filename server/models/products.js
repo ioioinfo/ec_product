@@ -69,7 +69,7 @@ var products = function(server) {
 				});
 			});
 		},
-
+		//后台查询产品列表
 		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,
@@ -257,7 +257,7 @@ var products = function(server) {
 				});
 			});
 		},
-
+		//线上产品搜索
 		search_products : function(search_object,cb) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
 				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight,a.origin
@@ -365,8 +365,8 @@ var products = function(server) {
 				(?,?,
 			 	?,?,?,
 				?,now(),now(),0)` ;
-			var id = uuidV1();
-			var columns=[id,product.product_name,product.product_sale_price,
+			// var id = uuidV1();
+			var columns=[product.product_id,product.product_name,product.product_sale_price,
 				product.product_sale_price, product.product_id,product.industry_id
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
@@ -377,7 +377,7 @@ var products = function(server) {
 						cb(true,results);
 						return;
 					}
-					results.product_id = id;
+					results.product_id = product.product_id;
 					cb(false,results);
 				});
 			});

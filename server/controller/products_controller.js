@@ -505,6 +505,24 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+		//产品展示页面，通过传入产品id获取产品
+		{
+			method: 'GET',
+			path: '/get_product',
+			handler: function(request, reply){
+				var product_id = request.query.product_id;
+				if (!product_id) {
+					return reply({"success":false,"message":"参数错误","service_info":service_info});
+				}
+				server.plugins['models'].products.find_by_id(product_id,function(err,rows){
+					if (!err) {
+						return reply({"success":false,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//保存商品
 		{
 			method: 'POST',
@@ -561,7 +579,7 @@ exports.register = function(server, options, next){
 				}
 				get_productById(product_id, function(err, row){
 					if (!err) {
-						return reply({"success":true,"message":"ok","row":row,"service_info":service_info});
+						return reply({"success":true,"row":row,"service_info":service_info});
 					}else {
 						return reply({"success":false,"message":row.message,"service_info":service_info});
 					}
@@ -913,7 +931,7 @@ exports.register = function(server, options, next){
 				get_productById(product_id, function(err, product){
 					if (!err) {
 						if (!product) {
-							return reply({"success":false,"message":"查不到商品明细！","message":"ok"});
+							return reply({"success":false,"message":"查不到商品明细！"});
 						}
 						var industry_id = product.industry_id;
 						var table_name = industries[industry_id]["table_name"];
