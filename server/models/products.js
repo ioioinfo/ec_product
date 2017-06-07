@@ -4,6 +4,23 @@ const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
+		//更新产品信息
+		update_product_info : function(id, product_name, weight, product_sale_price, product_marketing_price, origin, old_id, cb) {
+			var query = `update products set id = ?, product_name = ?, weight = ?,
+			product_sale_price = ?, product_marketing_price = ?, origin = ?
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [id, product_name, weight, product_sale_price, product_marketing_price, origin, old_id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 		//查询产品分类不为null的
 		find_sort_id : function(cb) {
 			var query = `select id, sort_id
@@ -262,7 +279,7 @@ var products = function(server) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
 				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight,a.origin
 				FROM products a
-				where a.flag =0 and is_down = 0
+				where a.flag =0 and a.is_down = 0 and a.origin = "南通"
 			`;
 			// sort_id
 			if (search_object.sort_id) {

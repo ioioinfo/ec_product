@@ -196,6 +196,31 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
+
+		//商品编辑
+		{
+			method: 'POST',
+			path: '/update_product_info',
+			handler: function(request, reply){
+				var old_id = request.payload.old_id;
+				var id = request.payload.id;
+				var product_name = request.payload.product_name;
+				var weight = request.payload.weight;
+				var product_sale_price = request.payload.product_sale_price;
+				var product_marketing_price = request.payload.product_marketing_price;
+				var origin = request.payload.origin;
+				if (!id || !product_name || !weight || !product_sale_price || !product_marketing_price || !origin || !old_id) {
+					return reply({"success":false,"message":"params wrong"});
+				}
+				server.plugins['models'].products.update_product_info(id, product_name, weight, product_sale_price, product_marketing_price, origin, old_id,function(err,rows){
+					if (rows.affectedRows>0) {
+						return reply({"success":true,"message":"ok","service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//商品分类，高手模式
 		{
 			method: 'POST',
