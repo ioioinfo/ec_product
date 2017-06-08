@@ -311,34 +311,52 @@ exports.register = function(server, options, next){
 			}
 		},
 		//新增商品
+		// {
+		// 	method: 'POST',
+		// 	path: '/add_product',
+		// 	handler: function(request, reply){
+		// 		var product = request.payload.product;
+		// 		product = JSON.parse(product);
+		// 		var product_description = product.product_describe;
+		// 		var industry_id = product.industry_id;
+		// 		server.plugins['models'].products.save_product_complex(product,function(err,result){
+		// 			if (result.affectedRows>0) {
+		// 				var industry = industries[industry_id];
+		// 				var product_id = result.product_id;
+		// 				var santao = {
+		// 					"product_id" : product_id,
+		// 					"is_new" : request.payload.is_new,
+		// 					"row_materials" : request.payload.row_materials,
+		// 					"batch_code" : request.payload.batch_code,
+		// 					"size_name" : request.payload.size_name
+		// 				};
+		// 				santao = JSON.stringify(santao);
+		// 				//暂时写死
+		// 				server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
+		// 					if (!err) {
+		// 						return reply({"success":true,"service_info":service_info})
+		// 					}else {
+		// 						return reply({"success":false,"message":rows.message,"service_info":service_info})
+		// 					}
+		// 				});
+		// 			}else {
+		// 				return reply({"success":false,"message":result.message,"service_info":service_info})
+		// 			}
+		// 		});
+		// 	}
+		// },
 		{
 			method: 'POST',
 			path: '/add_product',
 			handler: function(request, reply){
 				var product = request.payload.product;
+				console.log("product:"+product);
 				product = JSON.parse(product);
 				var product_description = product.product_describe;
 				var industry_id = product.industry_id;
 				server.plugins['models'].products.save_product_complex(product,function(err,result){
 					if (result.affectedRows>0) {
-						var industry = industries[industry_id];
-						var product_id = result.product_id;
-						var santao = {
-							"product_id" : product_id,
-							"is_new" : request.payload.is_new,
-							"row_materials" : request.payload.row_materials,
-							"batch_code" : request.payload.batch_code,
-							"size_name" : request.payload.size_name
-						};
-						santao = JSON.stringify(santao);
-						//暂时写死
-						server.plugins['models'].industry_santao.save_santao_industy(santao,function(err,rows){
-							if (!err) {
-								return reply({"success":true,"service_info":service_info})
-							}else {
-								return reply({"success":false,"message":rows.message,"service_info":service_info})
-							}
-						});
+						return reply({"success":true,"service_info":service_info})
 					}else {
 						return reply({"success":false,"message":result.message,"service_info":service_info})
 					}

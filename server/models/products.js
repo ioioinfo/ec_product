@@ -90,7 +90,7 @@ var products = function(server) {
 		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
 				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,
-				time_to_market, DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing,
+				DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing,
 				DATE_FORMAT(update_at,'%Y-%m-%d %H:%i:%S') update_at_text
 				FROM products
 				where flag =0
@@ -146,6 +146,9 @@ var products = function(server) {
 			if (params.is_down) {
 				query = query + " and is_down = ? ";
 				colums.push(params.is_down);
+			}
+			if (params.sort_id) {
+				query = query + " and sort_id is null ";
 			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query,colums, function(err, rows) {
@@ -403,21 +406,21 @@ var products = function(server) {
 		save_product_complex : function(product,cb){
 			var query = `insert into products (id, product_name,
 				product_sale_price, product_marketing_price, code, industry_id,
-				sort_id, product_brand, time_to_market, color,
-				weight, guarantee, barcode, origin,
-				create_at, update_at, flag)
+				sort_id, product_brand, color,
+				weight, guarantee, origin,
+				create_at, update_at, flag, is_sale, is_down)
 				values
 				(?,?,
 				?,?,?,?,
-				?,?,?,?,
-				?,?,?,?,
-				now(),now(),0)` ;
+				?,?,?,
+				?,?,?,
+				now(),now(),0,1,1)` ;
 			var id = product.product_id;
 			var columns=[id, product.product_name,
 				product.product_sale_price, product.product_marketing_price,
 				product.product_id, product.industry_id,
-				product.sort_id, product.product_brand, product.time_to_market, product.color,
-				product.weight, product.guarantee, product.barcode,product.origin
+				product.sort_id, product.product_brand, product.color,
+				product.weight, product.guarantee, product.origin
 			];
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
