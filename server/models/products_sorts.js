@@ -66,7 +66,6 @@ var products_sorts = function(server) {
 				});
 			});
 		},
-
 		//查询
 		search_sorts : function(ids,cb) {
 			var query = `select id,sort_name,parent,web_link,img_location
@@ -83,6 +82,23 @@ var products_sorts = function(server) {
 				});
 			});
 		},
+		//查询三级分类
+		search_level_three: function(cb) {
+			var query = `select id,sort_name
+            from products_sorts where flag =0 and id not like "%000"
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
+
 
 	};
 };

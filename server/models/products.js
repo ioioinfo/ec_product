@@ -482,6 +482,22 @@ var products = function(server) {
 					cb(false,rows);
 				});
 			});
+		},
+		//查询没有分类的产品
+		get_no_sorts : function(cb) {
+			var query = `select id,product_name FROM products
+				where sort_id is null and flag =0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
 		}
 
 

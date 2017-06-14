@@ -179,8 +179,34 @@ exports.register = function(server, options, next){
 				});
 			}
 		},
-
-
+		//查询没有分类的产品
+		{
+			method: 'GET',
+			path: '/get_no_sorts',
+			handler: function(request, reply){
+				server.plugins['models'].products.get_no_sorts(function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//三级分类
+		{
+			method: 'GET',
+			path: '/search_level_three',
+			handler: function(request, reply){
+				server.plugins['models'].products_sorts.search_level_three(function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 
 	]);
 
