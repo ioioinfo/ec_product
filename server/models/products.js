@@ -108,6 +108,10 @@ var products = function(server) {
 				query = query + " and is_down = ? ";
 				colums.push(params.is_down);
 			}
+			if (params.origin) {
+				query = query + " and origin = ? ";
+				colums.push(params.origin);
+			}
 			if (params.thisPage) {
 				var offset = params.thisPage-1;
 				if (params.everyNum) {
@@ -149,6 +153,10 @@ var products = function(server) {
 			}
 			if (params.sort_id) {
 				query = query + " and sort_id is null ";
+			}
+			if (params.origin) {
+				query = query + " and origin = ? ";
+				colums.push(params.origin);
 			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query,colums, function(err, rows) {
