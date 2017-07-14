@@ -76,6 +76,10 @@ exports.register = function(server, options, next){
 	};
 	//通过商品id获取
 	var get_products_picture = function(product_ids, cb){
+		if (product_ids && product_ids.length==0) {
+			cb(true,"商品小图片不存在！");
+			return;
+		}
 		server.plugins['models'].products_pictures.find_pictures(product_ids, function(rows){
 			if (rows.length > 0) {
 				cb(false,rows);
@@ -86,6 +90,10 @@ exports.register = function(server, options, next){
 	};
 	//通过product_ids找到商品信息
 	var find_products = function(product_ids, cb){
+		if (product_ids && product_ids.length==0) {
+			cb(true,"购物车还没商品！");
+			return;
+		}
 		server.plugins['models'].products.find_products(product_ids, function(err,rows){
 			if (rows.length > 0) {
 				cb(false,rows);
@@ -96,6 +104,10 @@ exports.register = function(server, options, next){
 	};
 	//通过product_ids找到善淘信息
 	var find_shantao_infos = function(product_ids, cb){
+		if (product_ids && product_ids.length==0) {
+			cb(true,{message:"error"});
+			return;
+		}
 		server.plugins['models'].industry_santao.find_shantao_infos(product_ids, function(err,rows){
 			if (!err) {
 				cb(false,rows);
