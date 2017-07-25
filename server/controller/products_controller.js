@@ -152,6 +152,74 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//批量改价
+		{
+			method: 'POST',
+			path: '/update_products_prices',
+			handler: function(request, reply){
+				var remark = "正常改价";
+				// if (request.payload.remark) {
+				// 	remark = request.payload.remark;
+				// }
+				// var product_ids = request.payload.product_ids;
+				// var discount = request.payload.discount;
+				// product_ids = JSON.parse(product_ids);
+				// if (!discount || product_ids.length ==0) {
+				// 	return reply({"success":false,"message":"params wrong"});
+				// }
+
+				//110 , 25 , 29
+				var product_ids = ["00001260_A21","00001311_A19","00001314_A19"];
+				var discount = 0.1;
+
+				var save_fail = [];
+				var save_success = [];
+				async.eachLimit(product_ids,1, function(product_id, cb) {
+					console.log("product_id:"+product_id);
+					server.plugins['models'].products.find_by_id(product_id,function(err,rows){
+						if (!err) {
+							var product_name = rows[0].product_name;
+							var old_price = rows[0].product_sale_price;
+							var new_price = old_price * discount;
+							new_price = parseFloat(new_price.toFixed(2));
+
+							server.plugins['models'].products.update_products_prices(product_id,new_price,function(err,rows){
+								if (rows.affectedRows>0) {
+
+									server.plugins['models'].prices_history.save_history(product_id, product_name, old_price, new_price, discount, remark, function(err,rows){
+										if (rows.affectedRows>0) {
+											save_success.push(product_id);
+											cb();
+										}else {
+											console.log(rows.message);
+											save_fail.push(product_id);
+											cb();
+										}
+									});
+
+								}else {
+									console.log(rows.message);
+									save_fail.push(product_id);
+									cb();
+								}
+							});
+
+						}else {
+							console.log(rows.message);
+							save_fail.push(product_id);
+							cb();
+						}
+					});
+
+				}, function(err) {
+					if (err) {
+						console.error("err: " + err);
+					}
+					return reply({"success":true,"success_num":save_success.length,"fail_ids":save_fail,"fail_num":save_fail.length,"service_info":service_info});
+				});
+
+			}
+		},
 		//更新描述
 		{
 			method: 'POST',

@@ -506,8 +506,23 @@ var products = function(server) {
 					cb(false,rows);
 				});
 			});
-		}
-
+		},
+		//更新商品价格 单个
+		update_products_prices : function(id, price, cb) {
+			var query = `update products set product_sale_price = ?
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [price,id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 
 	};
 };
