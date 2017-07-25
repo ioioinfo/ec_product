@@ -220,7 +220,7 @@ exports.register = function(server, options, next){
 
 			}
 		},
-		//更新描述
+		//查看历史
 		{
 			method: 'GET',
 			path: '/find_history_list',
