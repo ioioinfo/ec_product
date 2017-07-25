@@ -158,24 +158,23 @@ exports.register = function(server, options, next){
 			path: '/update_products_prices',
 			handler: function(request, reply){
 				var remark = "正常改价";
-				// if (request.payload.remark) {
-				// 	remark = request.payload.remark;
-				// }
-				// var product_ids = request.payload.product_ids;
-				// var discount = request.payload.discount;
-				// product_ids = JSON.parse(product_ids);
-				// if (!discount || product_ids.length ==0) {
-				// 	return reply({"success":false,"message":"params wrong"});
-				// }
+				if (request.payload.remark) {
+					remark = request.payload.remark;
+				}
+				var product_ids = request.payload.product_ids;
+				var discount = request.payload.discount;
+				product_ids = JSON.parse(product_ids);
+				if (!discount || product_ids.length ==0) {
+					return reply({"success":false,"message":"params wrong"});
+				}
 
 				//110 , 25 , 29
-				var product_ids = ["00001260_A21","00001311_A19","00001314_A19"];
-				var discount = 0.1;
+				// var product_ids = ["00001260_A21","00001311_A19","00001314_A19"];
+				// var discount = 0.1;
 
 				var save_fail = [];
 				var save_success = [];
 				async.eachLimit(product_ids,1, function(product_id, cb) {
-					console.log("product_id:"+product_id);
 					server.plugins['models'].products.find_by_id(product_id,function(err,rows){
 						if (!err) {
 							var product_name = rows[0].product_name;
