@@ -4,16 +4,17 @@ var EventProxy = require('eventproxy');
 var prices_history = function(server) {
 	return {
         save_history : function(product_id, product_name,
-            old_price, new_price, discount, remark, cb){
+            old_price, new_price, discount, remark, person_id, cb){
 			var query = `insert into prices_history (product_id, product_name,
-                old_price, new_price, discount, remark,	created_at, updated_at, flag)
+                old_price, new_price, discount, remark, person_id,
+				created_at, updated_at, flag)
     			values
     			(?,?,
-    		 	?,?,?,?,
+    		 	?,?,?,?,?,
     			now(),now(),0)` ;
 
             var columns = [product_id, product_name,
-                old_price, new_price, discount, remark];
+                old_price, new_price, discount, remark, person_id];
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
@@ -23,6 +24,25 @@ var prices_history = function(server) {
 						cb(true,results);
 						return;
 					}
+					cb(false,results);
+				});
+			});
+		},
+
+		find_history_list : function(cb) {
+			var query = `select id, product_id, product_name,
+                old_price, new_price, discount, remark, person_id,
+				created_at
+			 	from prices_history
+				where flag = 0
+			`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, function(err, results) {
+					if (err) {
+						throw err;
+					}
+					connection.release();
 					cb(false,results);
 				});
 			});

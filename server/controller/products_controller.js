@@ -163,8 +163,9 @@ exports.register = function(server, options, next){
 				}
 				var product_ids = request.payload.product_ids;
 				var discount = request.payload.discount;
+				var person_id = request.payload.person_id;
 				product_ids = JSON.parse(product_ids);
-				if (!discount || product_ids.length ==0) {
+				if (!discount || product_ids.length ==0 || !person_id) {
 					return reply({"success":false,"message":"params wrong"});
 				}
 
@@ -185,7 +186,7 @@ exports.register = function(server, options, next){
 							server.plugins['models'].products.update_products_prices(product_id,new_price,function(err,rows){
 								if (rows.affectedRows>0) {
 
-									server.plugins['models'].prices_history.save_history(product_id, product_name, old_price, new_price, discount, remark, function(err,rows){
+									server.plugins['models'].prices_history.save_history(product_id, product_name, old_price, new_price, discount, remark,person_id, function(err,rows){
 										if (rows.affectedRows>0) {
 											save_success.push(product_id);
 											cb();
@@ -217,6 +218,20 @@ exports.register = function(server, options, next){
 					return reply({"success":true,"success_num":save_success.length,"fail_ids":save_fail,"fail_num":save_fail.length,"service_info":service_info});
 				});
 
+			}
+		},
+		//更新描述
+		{
+			method: 'GET',
+			path: '/find_history_list',
+			handler: function(request, reply){
+				server.plugins['models'].prices_history.find_history_list(function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
 			}
 		},
 		//更新描述
