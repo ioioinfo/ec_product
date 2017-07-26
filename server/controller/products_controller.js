@@ -225,9 +225,21 @@ exports.register = function(server, options, next){
 			method: 'GET',
 			path: '/find_history_list',
 			handler: function(request, reply){
-				server.plugins['models'].prices_history.find_history_list(function(err,rows){
+				var params = request.query.params;
+                var info = {};
+                if (params) {
+                    info = JSON.parse(params);
+                }
+				server.plugins['models'].prices_history.find_history_list(info,function(err,rows){
 					if (!err) {
-						return reply({"success":true,"rows":rows,"service_info":service_info});
+						server.plugins['models'].prices_history.account_history(info,function(err,row){
+							if (!err) {
+
+								return reply({"success":true,"rows":rows,"num":row[0].num,"service_info":service_info});
+							}else {
+								return reply({"success":false,"message":row.message,"service_info":service_info});
+							}
+						});
 					}else {
 						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
