@@ -179,14 +179,14 @@ exports.register = function(server, options, next){
 					server.plugins['models'].products.find_by_id(product_id,function(err,rows){
 						if (!err) {
 							var product_name = rows[0].product_name;
+							var marketing_price = rows[0].product_marketing_price;
 							var old_price = rows[0].product_sale_price;
 							var new_price = old_price * discount;
 							new_price = parseFloat(new_price.toFixed(2));
-
 							server.plugins['models'].products.update_products_prices(product_id,new_price,function(err,rows){
 								if (rows.affectedRows>0) {
 
-									server.plugins['models'].prices_history.save_history(product_id, product_name, old_price, new_price, discount, remark,person_id, function(err,rows){
+									server.plugins['models'].prices_history.save_history(product_id, product_name, old_price, new_price, discount, remark,person_id, marketing_price, function(err,rows){
 										if (rows.affectedRows>0) {
 											save_success.push(product_id);
 											cb();

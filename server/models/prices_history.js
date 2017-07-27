@@ -4,17 +4,17 @@ var EventProxy = require('eventproxy');
 var prices_history = function(server) {
 	return {
         save_history : function(product_id, product_name,
-            old_price, new_price, discount, remark, person_id, cb){
+            old_price, new_price, discount, remark, person_id,marketing_price, cb){
 			var query = `insert into prices_history (product_id, product_name,
-                old_price, new_price, discount, remark, person_id,
+                old_price, new_price, discount, remark, person_id,marketing_price,
 				created_at, updated_at, flag)
     			values
     			(?,?,
-    		 	?,?,?,?,?,
+    		 	?,?,?,?,?,?,
     			now(),now(),0)` ;
 
             var columns = [product_id, product_name,
-                old_price, new_price, discount, remark, person_id];
+                old_price, new_price, discount, remark, person_id,marketing_price];
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
@@ -30,9 +30,9 @@ var prices_history = function(server) {
 		},
 
 		find_history_list : function(info, cb) {
-			var query = `select id, product_id, product_name,
+			var query = `select id, product_id, product_name, marketing_price,
                 old_price, new_price, discount, remark, person_id,
-				created_at
+				DATE_FORMAT(created_at,'%Y-%m-%d %H:%i:%S')created_at
 			 	from prices_history
 				where flag = 0
 			`;
@@ -41,6 +41,8 @@ var prices_history = function(server) {
 				query = query + " & product_id = ?";
 				colums.push(info.product_id);
 			}
+
+			query = query + " order by created_at desc";
 			if (info.thisPage) {
 				var offset = info.thisPage-1;
 				if (info.everyNum) {
@@ -49,7 +51,6 @@ var prices_history = function(server) {
 					query = query + " limit " + offset*20 + ",20";
 				}
 			}
-
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, function(err, results) {
 					if (err) {
