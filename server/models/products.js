@@ -478,7 +478,7 @@ var products = function(server) {
 		//查询商品分类
 		get_products_sort: function(cb) {
 			var query = `select sort_id FROM products
-				where flag =0
+				where flag =0 and is_down = 0 and origin is not null
 			`;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, function(err, rows) {
