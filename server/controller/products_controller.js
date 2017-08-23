@@ -665,7 +665,7 @@ exports.register = function(server, options, next){
 				}
 				server.plugins['models'].products.find_by_id(product_id,function(err,rows){
 					if (!err) {
-						return reply({"success":false,"rows":rows,"service_info":service_info});
+						return reply({"success":true,"rows":rows,"service_info":service_info});
 					}else {
 						return reply({"success":false,"message":rows.message,"service_info":service_info});
 					}
