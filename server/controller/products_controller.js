@@ -155,7 +155,7 @@ exports.register = function(server, options, next){
 		//产品标签列表
 		{
 			method: 'GET',
-			path: '/searc_products_lables',
+			path: '/search_products_lables',
 			handler: function(request, reply){
 				var params = request.query.params;
 				var info = {};
