@@ -152,6 +152,7 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//删除
 		{
             method: 'POST',
             path: '/delete_lable',
