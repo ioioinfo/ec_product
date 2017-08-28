@@ -42,7 +42,7 @@ var products = function(server) {
 		},
 		account_lables : function(info, cb) {
 			var query = `select count(1) num
-			 	from products_lables
+			 	from products
 				where flag = 0
 			`;
 			var colums=[];
