@@ -112,6 +112,13 @@ var products = function(server) {
 				query = query + " and origin = ? ";
 				colums.push(params.origin);
 			}
+			if (params.sort_id) {
+				if (params.sort_id == "1") {
+					query = query + " and sort_id is null ";
+				}else {
+					query = query + " and sort_id is not null ";
+				}
+			}
 			if (params.thisPage) {
 				var offset = params.thisPage-1;
 				if (params.everyNum) {

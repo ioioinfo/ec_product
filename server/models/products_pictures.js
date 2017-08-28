@@ -50,7 +50,7 @@ var products_pictures = function(server) {
 		},
 		//根据id找到商品大图
 		find_by_product_id : function(product_id, callback) {
-			var query = `select location from products_pictures where product_id = ? and flag =0` ;
+			var query = `select id,location,DATE_FORMAT(create_at,'%Y-%m-%d %H:%i:%S')create_at from products_pictures where product_id = ? and flag =0` ;
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, [product_id], function(err, results) {
 					if (err) {
@@ -107,7 +107,22 @@ var products_pictures = function(server) {
 				});
 			});
 		},
-
+		//设为主图
+		update_main_picture : function(id, create_at, cb) {
+			var query = `update products_pictures set create_at = ?
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [create_at,id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 
 
 	};

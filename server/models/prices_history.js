@@ -38,7 +38,7 @@ var prices_history = function(server) {
 			`;
 			var colums=[];
 			if (info.product_id) {
-				query = query + " & product_id = ?";
+				query = query + " and product_id = ?";
 				colums.push(info.product_id);
 			}
 
@@ -52,7 +52,7 @@ var prices_history = function(server) {
 				}
 			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-				connection.query(query, function(err, results) {
+				connection.query(query, colums, function(err, results) {
 					if (err) {
 						throw err;
 					}
@@ -66,12 +66,13 @@ var prices_history = function(server) {
 			 	from prices_history
 				where flag = 0
 			`;
+			var colums=[];
 			if (info.product_id) {
-				query = query + " & product_id = ?";
+				query = query + " and product_id = ?";
 				colums.push(info.product_id);
 			}
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
-				connection.query(query, function(err, results) {
+				connection.query(query, colums, function(err, results) {
 					if (err) {
 						throw err;
 					}
