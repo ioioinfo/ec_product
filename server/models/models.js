@@ -12,6 +12,8 @@ exports.register = function(server, options, next){
 	server.expose('products_sorts', require('./products_sorts.js')(server));
 	server.expose('prices_history', require('./prices_history.js')(server));
 	server.expose('products_lables', require('./products_lables.js')(server));
+	server.expose('products_lable_infos', require('./products_lable_infos.js')(server));
+
 	next();
 }
 

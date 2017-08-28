@@ -493,18 +493,18 @@ var products = function(server) {
 		},
 		//保存商品简单版
 		save_product_simple : function(product,cb){
-			var product = JSON.parse(product);
 			var query = `insert into products (id, product_name,
 				product_sale_price, product_marketing_price, code,
-				industry_id,create_at, update_at, flag)
+				industry_id, origin, create_at, update_at, flag)
 				values
 				(?,?,
 			 	?,?,?,
-				?,now(),now(),0)` ;
+				?,?,now(),now(),0)` ;
 			// var id = uuidV1();
 			var columns=[product.product_id,product.product_name,product.product_sale_price,
-				product.product_sale_price, product.product_id,product.industry_id
+				product.product_sale_price, product.product_id,product.industry_id,product.origin
 			];
+			console.log("query:"+query);
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
 				connection.query(query, columns, function(err, results) {
 					connection.release();
