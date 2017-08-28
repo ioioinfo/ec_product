@@ -152,6 +152,111 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//产品标签列表
+		{
+			method: 'GET',
+			path: '/searc_products_lables',
+			handler: function(request, reply){
+				var params = request.query.params;
+				var info = {};
+				if (params) {
+					info = JSON.parse(params);
+				}
+				server.plugins['models'].products.search_products_lables(info,function(err,rows){
+					if (!err) {
+						server.plugins['models'].products.account_lables(info,function(err,row){
+							if (!err) {
+
+								return reply({"success":true,"rows":rows,"num":row[0].num,"service_info":service_info});
+							}else {
+								return reply({"success":false,"message":row.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//根据标签找商品
+		{
+			method: 'GET',
+			path: '/find_by_lable',
+			handler: function(request, reply){
+				var lable = request.query.lable;
+				if (!lable) {
+					return reply({"success":false,"message":"lable null"});
+				}
+				server.plugins['models'].products.find_by_lable(lable,function(err,rows){
+					if (!err) {
+						return reply({"success":true,"rows":rows,"service_info":service_info});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//查看标签
+		{
+			method: 'GET',
+			path: '/find_lables_list',
+			handler: function(request, reply){
+				var params = request.query.params;
+				var info = {};
+				if (params) {
+					info = JSON.parse(params);
+				}
+				server.plugins['models'].products_lables.find_lables_list(info,function(err,rows){
+					if (!err) {
+						server.plugins['models'].products_lables.account_lables(info,function(err,row){
+							if (!err) {
+
+								return reply({"success":true,"rows":rows,"num":row[0].num,"service_info":service_info});
+							}else {
+								return reply({"success":false,"message":row.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
+		//新增或者更新或者删除标签
+		{
+			method: 'POST',
+			path: '/update_products_lable',
+			handler: function(request, reply){
+				var lable = request.payload.lable;
+				var id = request.payload.id;
+				if (!id || !lable) {
+					return reply({"success":false,"message":"id or lable null"});
+				}
+				server.plugins['models'].products.update_products_lable(id, lable,function(err,rows){
+					if (rows.affectedRows>0) {
+						server.plugins['models'].products_lables.find_by_name(lable,function(err,row){
+							if (!err) {
+								if (row.length == 0) {
+									server.plugins['models'].products_lables.save_lable(lable,function(err,rows){
+										if (rows.affectedRows>0) {
+											return reply({"success":true,"message":"ok","service_info":service_info});
+										}else {
+											return reply({"success":false,"message":rows.message,"service_info":service_info});
+										}
+									});
+								}else {
+									return reply({"success":true,"message":"ok","service_info":service_info});
+								}
+							}else {
+								return reply({"success":false,"message":row.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//批量改价
 		{
 			method: 'POST',

@@ -4,6 +4,107 @@ const uuidV1 = require('uuid/v1');
 
 var products = function(server) {
 	return {
+		//产品标签列表
+		search_products_lables : function(info,cb) {
+			var query = `select id, lable
+			FROM products where flag =0`;
+
+			var colums=[];
+			if (info.id) {
+				query = query + " and id = ?";
+				colums.push(info.id);
+			}
+			if (info.lable) {
+				query = query + " and lable = ?";
+				colums.push(info.lable);
+			}
+
+			query = query + " order by create_at desc";
+			if (info.thisPage) {
+				var offset = info.thisPage-1;
+				if (info.everyNum) {
+					query = query + " limit " + offset*info.everyNum + "," + info.everyNum;
+				}else {
+					query = query + " limit " + offset*20 + ",20";
+				}
+			}
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, colums, function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,null);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
+		account_lables : function(info, cb) {
+			var query = `select count(1) num
+			 	from products_lables
+				where flag = 0
+			`;
+			var colums=[];
+			if (info.id) {
+				query = query + " and id = ?";
+				colums.push(info.id);
+			}
+			if (info.lable) {
+				query = query + " and lable = ?";
+				colums.push(info.lable);
+			}
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, colums, function(err, results) {
+					if (err) {
+						throw err;
+					}
+					connection.release();
+					cb(false,results);
+				});
+			});
+		},
+		//根据标签找产品
+		find_by_lable : function(lable, cb) {
+			var query = `select id, product_name, product_sale_price, lable,
+			product_marketing_price, product_brand,sale_id,  after_sale_id, same_code,
+			sku_id, industry_id, time_to_market,
+			code, color, report_id, service_id, pay_way, product_suggestion,
+			send_way, weight, delivery_area, is_sale, is_presale, is_preorder,
+			is_down, is_gift_product, is_time_limit_sale, price_stage, barcode,
+			is_group_product, is_replace_product, is_crazy_product,
+			is_point_product, is_net_point,is_free_product, is_low_price_product,
+			origin, module_number, DATE_FORMAT(update_at,'%Y-%m-%d %H:%i:%S') update_at_text
+			FROM products where lable = ? and flag =0`;
+
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [lable], function(err, results) {
+					connection.release();
+					if (err) {
+						console.log(err);
+						cb(true,null);
+						return;
+					}
+					cb(false,results);
+				});
+			});
+		},
+		//新增产品标签
+		update_products_lable : function(id, lable, cb) {
+			var query = `update products set lable = ?
+			where id = ? and flag = 0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [lable,id], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 		//更新产品信息
 		update_product_info : function(id, product_name, weight, product_sale_price, product_marketing_price, origin, old_id, cb) {
 			var query = `update products set id = ?, product_name = ?, weight = ?,
