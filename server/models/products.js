@@ -341,7 +341,7 @@ var products = function(server) {
 		},
 
 		find_products : function(product_ids, cb) {
-			var query = `select id,product_name,short_name,product_sale_price,industry_id
+			var query = `select id,product_name,short_name,product_sale_price,industry_id,is_down
 				,color,code,color,product_marketing_price,product_brand,weight,origin,is_sale
 				FROM products
 				where id in (?) and flag =0
