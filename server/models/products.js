@@ -396,7 +396,7 @@ var products = function(server) {
 		//线上产品搜索
 		search_products : function(search_object,cb) {
 			var query = `select a.id,a.product_name,a.short_name,a.product_sale_price,a.industry_id
-				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight,a.origin, a,sku_id
+				,a.color,a.code,a.color,a.product_marketing_price,a.product_brand,a.weight,a.origin, a.sku_id
 				FROM products a
 				where a.flag =0 and a.is_down = 0 and a.origin = "南通"
 			`;
