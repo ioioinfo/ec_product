@@ -190,7 +190,7 @@ var products = function(server) {
 		//后台查询产品列表
 		get_products_list : function(params,cb) {
 			var query = `select id,product_name,short_name,sort_id,product_sale_price,industry_id
-				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,
+				,color,code,color,product_marketing_price,product_brand,weight,is_down,origin,sku_id,
 				DATE_FORMAT(time_to_market,'%Y-%m-%d %H:%i:%S') up_to_marketing,
 				DATE_FORMAT(update_at,'%Y-%m-%d %H:%i:%S') update_at_text
 				FROM products
