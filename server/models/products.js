@@ -448,7 +448,7 @@ var products = function(server) {
 			if (search_object.num) {
 				query = query + " limit "+search_object.num;
 			}else {
-				query = query + " limit 100 ";
+				query = query + " limit 200 ";
 			}
 
 			server.plugins['mysql'].pool.getConnection(function(err, connection) {
