@@ -152,6 +152,57 @@ exports.register = function(server, options, next){
 		do_post_method(url,data,cb);
 	};
 	server.route([
+		//查询产品分类
+		{
+			method: 'GET',
+			path: '/get_product_sorts',
+			handler: function(request, reply){
+				var product_ids = request.query.product_ids;
+				if (!product_ids) {
+					return reply({"success":false,"message":"product_ids null"});
+				}
+				product_ids = JSON.parse(product_ids);
+				server.plugins['models'].products.search_products_sort(product_ids,function(err,rows){
+					if (!err) {
+						var products_sorts = rows;
+						var parent = 0;
+						server.plugins['models'].products_sorts.get_level_one(parent,function(err,rows){
+							if (!err) {
+								for (var i = 0; i < products_sorts.length; i++) {
+									products_sorts[i].sort_id = products_sorts[i].sort_id.substring(0,3);
+								}
+								var sort_map = {};
+								for (var i = 0; i < rows.length; i++) {
+									rows[i].id = rows[i].id.substring(0,3);
+									if (!sort_map[rows[i].id]) {
+										sort_map[rows[i].id] = rows[i].sort_name;
+									}
+								}
+								var sort_list = [];
+								var data_map = {};
+								for (var i = 0; i < products_sorts.length; i++) {
+									if (!data_map[products_sorts[i].sort_id]) {
+										var data = {
+											"product_ids":[],
+											"sort_name":sort_map[products_sorts[i].sort_id]
+										};
+										data_map[products_sorts[i].sort_id] = data;
+										sort_list.push(data);
+									}
+									data_map[products_sorts[i].sort_id].product_ids.push(products_sorts[i].id);
+								}
+
+								return reply({"success":true,"rows":sort_list,"service_info":service_info});
+							}else {
+								return reply({"success":false,"message":rows.message,"service_info":service_info});
+							}
+						});
+					}else {
+						return reply({"success":false,"message":rows.message,"service_info":service_info});
+					}
+				});
+			}
+		},
 		//删除
 		{
             method: 'POST',

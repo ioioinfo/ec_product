@@ -7,8 +7,8 @@ exports.register = function(server, options, next){
   	connectionLimit : 10,
   	host            : '127.0.0.1',
   	port            :  3306,
-  	user            : 'root',
-  	password        : 'root',
+  	user            : 'uuinfo',
+  	password        : '123321',
   	database        : 'ec_product',
   	charset         : 'utf8_general_ci'
 	});

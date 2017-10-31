@@ -583,6 +583,22 @@ var products = function(server) {
 				});
 			});
 		},
+		//批量查询商品分类
+		search_products_sort: function(ids, cb) {
+			var query = `select id, sort_id FROM products
+				where id in(?) and flag =0
+			`;
+			server.plugins['mysql'].pool.getConnection(function(err, connection) {
+				connection.query(query, [ids], function(err, rows) {
+					connection.release();
+					if (err) {
+						cb(true,null);
+						return;
+					}
+					cb(false,rows);
+				});
+			});
+		},
 		//查询商品分类
 		get_products_sort: function(cb) {
 			var query = `select sort_id FROM products
